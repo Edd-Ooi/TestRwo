@@ -1,0 +1,4374 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="1% mieux">
+<title>1% mieux — chaque jour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ============================================
+     DESIGN TOKENS
+     ============================================ */
+  :root {
+    --bg: #ffffff;
+    --surface: #f8f7f4;
+    --border: #ebebeb;
+    --text: #1a1a1a;
+    --muted: #9a9a9a;
+    --soft: #f2f1ee;
+
+    --green: #3d9e5f;
+    --green-deep: #2e7c47;
+    --green-light: #e8f7ee;
+    --green-border: #b8e4c8;
+
+    --amber: #e8920a;
+    --amber-light: #fff8ec;
+
+    --blue: #3a7bd5;
+    --blue-light: #eef4ff;
+    --blue-border: #c0d8f8;
+
+    --soil: #d4c5a9;
+    --soil-dark: #b5a085;
+
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 14px rgba(0,0,0,0.08);
+    --shadow-lg: 0 4px 20px rgba(0,0,0,0.12);
+    --shadow-fab: 0 4px 14px rgba(0,0,0,0.18);
+
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ============================================
+     RESET & BASE
+     ============================================ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior: none; }
+  body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-weight: 700;
+    line-height: 1.4;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+  }
+  button, input { font-family: inherit; color: inherit; }
+  button { background: none; border: none; cursor: pointer; padding: 0; }
+  input { outline: none; }
+
+  /* ============================================
+     APP SHELL
+     ============================================ */
+  .app {
+    width: 100%;
+    height: 100dvh;
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: calc(16px + var(--safe-top)) 0 calc(96px + var(--safe-bottom)) 0;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .screen.active { display: block; }
+
+  .screen::-webkit-scrollbar { display: none; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes popIn {
+    0% { opacity: 0; transform: scale(0.6); }
+    60% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes checkPop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes sway-soft {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+  }
+  @keyframes sway-med {
+    0%, 100% { transform: rotate(-1.5deg); }
+    50% { transform: rotate(1.5deg); }
+  }
+  @keyframes sway-slow {
+    0%, 100% { transform: rotate(-1deg); }
+    50% { transform: rotate(1deg); }
+  }
+
+  @keyframes chipIn {
+    from { opacity: 0; transform: scale(0.85) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(60px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes confettiBurst {
+    0% { transform: translate(-50%, -50%) rotate(var(--r)) translateY(0) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--r)) translateY(-60px) scale(0.3); opacity: 0; }
+  }
+
+  @keyframes ringDraw {
+    from { stroke-dashoffset: var(--circumference); }
+  }
+
+  @keyframes pulseSoft {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+
+  /* ============================================
+     SHARED COMPONENTS
+     ============================================ */
+  .container {
+    padding: 0 20px;
+  }
+
+  .label-section {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 24px 0 12px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--soft);
+    color: var(--text);
+  }
+
+  .pill-grace {
+    background: var(--blue-light);
+    color: var(--blue);
+    border: 1px solid var(--blue-border);
+  }
+
+  /* ============================================
+     HOME SCREEN
+     ============================================ */
+  .home-header {
+    padding: 0 20px 8px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .home-header__left { flex: 1; min-width: 0; }
+  .home-header__date {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .home-header__greeting {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .progress-ring {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+  .progress-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .progress-ring__bg {
+    stroke: var(--soft);
+  }
+  .progress-ring__fg {
+    stroke: var(--green);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .progress-ring__text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .streak-banner {
+    margin: 16px 20px 0;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #fff8ec 0%, #fef3df 100%);
+    border: 1px solid #f5e3c0;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeSlideUp 0.4s ease 0.1s both;
+  }
+  .streak-banner__icon { font-size: 24px; }
+  .streak-banner__content { flex: 1; min-width: 0; }
+  .streak-banner__title {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--amber);
+  }
+  .streak-banner__sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: #b67307;
+    margin-top: 2px;
+  }
+
+  .habits-list {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Mode compact : activé au-delà de FOCUS_HINT_THRESHOLD activités actives.
+     Conserve l'identité visuelle, allège la densité. */
+  .habits-list--compact { gap: 8px; }
+  .habits-list--compact .habit-card {
+    padding: 12px 12px;
+    border-radius: 16px;
+    gap: 12px;
+  }
+  .habits-list--compact .habit-plant {
+    width: 40px;
+  }
+  .habits-list--compact .habit-name {
+    font-size: 14px;
+  }
+  .habits-list--compact .habit-anchor {
+    font-size: 11px;
+  }
+  .habits-list--compact .week-strip {
+    display: none;
+  }
+  .habits-list--compact .feel-message {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+  .habits-list--compact .pause-note {
+    font-size: 11px;
+  }
+  .habits-list--compact .check-circle {
+    width: 32px;
+    height: 32px;
+  }
+  .habits-list--compact .check-btn {
+    width: 38px;
+  }
+  .habits-list--compact .habit-menu-btn {
+    top: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+  }
+  .habits-list--compact .habit-menu-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .habit-card {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 16px;
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeSlideUp 0.4s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .habit-card.done {
+    background: var(--green-light);
+    border-color: var(--green-border);
+  }
+
+  .habit-plant {
+    width: 56px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .habit-plant svg {
+    width: 100%;
+    height: auto;
+    transform-origin: bottom center;
+  }
+  .habit-plant--seed svg { animation: sway-soft 2.2s ease-in-out infinite; }
+  .habit-plant--sprout svg { animation: sway-soft 2.6s ease-in-out infinite; }
+  .habit-plant--bush svg { animation: sway-med 3s ease-in-out infinite; }
+  .habit-plant--tree svg { animation: sway-slow 3.5s ease-in-out infinite; }
+  .habit-plant--flower svg { animation: sway-slow 4s ease-in-out infinite; }
+
+  .habit-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  .habit-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+    transition: all 0.3s ease;
+  }
+  .habit-card.done .habit-name {
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: var(--green);
+    opacity: 0.7;
+  }
+  .habit-anchor {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  .week-strip {
+    display: flex;
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .week-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--muted);
+  }
+  .week-dot.done {
+    background: var(--green);
+    color: #fff;
+  }
+  .week-dot.grace {
+    background: var(--green-border);
+    color: var(--green-deep);
+  }
+  .week-dot.today {
+    box-shadow: 0 0 0 2px var(--text);
+  }
+
+  .feel-message {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green-deep);
+    animation: fadeSlideUp 0.4s ease;
+  }
+
+  .check-btn {
+    width: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+  }
+  .check-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    position: relative;
+  }
+  .check-circle:active { transform: scale(0.92); }
+  .habit-card.done .check-circle {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .check-circle svg {
+    width: 18px;
+    height: 18px;
+    stroke: #fff;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 0.2s ease;
+  }
+  .habit-card.done .check-circle svg {
+    opacity: 1;
+    animation: checkPop 0.35s ease;
+    animation-fill-mode: forwards;
+  }
+
+  .confetti-burst {
+    position: absolute;
+    pointer-events: none;
+    inset: 0;
+    overflow: visible;
+  }
+  .confetti-piece {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    animation: confettiBurst 0.7s ease-out forwards;
+  }
+
+  .grace-row {
+    padding: 0 20px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .celebrate-card {
+    margin: 16px 20px 0;
+    padding: 20px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--green-light) 0%, #d8f0e1 100%);
+    border: 1.5px solid var(--green-border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: popIn 0.5s ease;
+  }
+  .celebrate-card__icon { font-size: 36px; }
+  .celebrate-card__content { flex: 1; }
+  .celebrate-card__title {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--green-deep);
+  }
+  .celebrate-card__sub {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green-deep);
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+  .celebrate-card__arrow {
+    color: var(--green-deep);
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  .empty-state {
+    margin: 32px 20px;
+    padding: 28px 20px;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1.5px dashed var(--border);
+    text-align: center;
+  }
+  .empty-state__icon { font-size: 36px; margin-bottom: 8px; }
+  .empty-state__title { font-size: 16px; font-weight: 900; }
+  .empty-state__sub {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .empty-state__btn {
+    margin-top: 16px;
+    padding: 12px 24px;
+    border-radius: 14px;
+    background: var(--text);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  /* ============================================
+     ADD HABIT FLOW
+     ============================================ */
+  .add-screen { animation: slideInUp 0.35s ease; }
+
+  .add-header {
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+  .icon-btn:active { transform: scale(0.92); }
+  .icon-btn svg { width: 18px; height: 18px; stroke: var(--text); stroke-width: 2.5; fill: none; }
+
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--soft);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-bar__fill {
+    height: 100%;
+    background: var(--text);
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .step-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 20px;
+    margin-bottom: 24px;
+  }
+  .step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s ease;
+  }
+  .step-dot.active {
+    width: 24px;
+    border-radius: 3px;
+    background: var(--text);
+  }
+  .step-dot.done { background: var(--green); }
+
+  .step {
+    padding: 0 20px;
+    display: none;
+    animation: fadeSlideUp 0.35s ease both;
+  }
+  .step.active { display: block; }
+
+  .step-title {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .step-subtitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .hint-box {
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .hint-box__icon {
+    flex-shrink: 0;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+  .hint-box--blue {
+    background: var(--blue-light);
+    border: 1px solid var(--blue-border);
+    color: #2657a0;
+  }
+  .hint-box--green {
+    background: var(--green-light);
+    border: 1px solid var(--green-border);
+    color: var(--green-deep);
+  }
+  .hint-box--amber {
+    background: var(--amber-light);
+    border: 1px solid #f5d99a;
+    color: #a16607;
+  }
+
+  .text-input {
+    width: 100%;
+    padding: 16px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    background: var(--bg);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .text-input::placeholder { color: var(--muted); font-weight: 600; }
+  .text-input:focus {
+    border-color: var(--text);
+    background: var(--bg);
+  }
+  .text-input.valid {
+    border-color: var(--green);
+    background: var(--green-light);
+  }
+
+  .chips-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .chip {
+    padding: 9px 14px;
+    border-radius: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    transition: all 0.2s ease;
+    animation: chipIn 0.3s ease both;
+  }
+  .chip:active { transform: scale(0.94); }
+  .chip.selected {
+    background: var(--text);
+    color: #fff;
+    border-color: var(--text);
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .option-item {
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    background: var(--bg);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeSlideUp 0.3s ease both;
+  }
+  .option-item:active { transform: scale(0.98); }
+  .option-item.selected {
+    border-color: var(--text);
+    background: var(--text);
+    color: #fff;
+  }
+  .option-item__icon { font-size: 18px; }
+
+  .blocked-banner {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--amber-light);
+    border: 1px solid #f5d99a;
+    border-radius: 14px;
+    color: #a16607;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .recap {
+    margin-top: 24px;
+    padding: 18px;
+    background: var(--surface);
+    border-radius: 18px;
+    border: 1.5px solid var(--border);
+    animation: fadeSlideUp 0.4s ease;
+  }
+  .recap__title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .recap__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  .recap__row + .recap__row { border-top: 1px solid var(--border); }
+  .recap__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .recap__content { flex: 1; }
+  .recap__label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .recap__value {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    margin-top: 2px;
+  }
+
+  .step-cta {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent, var(--bg) 30%);
+    padding: 24px 20px 16px;
+    margin: 24px -20px 0;
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--text);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 900;
+    transition: all 0.2s ease;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled {
+    background: var(--soft);
+    color: var(--muted);
+  }
+
+  /* ============================================
+     GARDEN SCREEN
+     ============================================ */
+  .garden-hero {
+    background: linear-gradient(180deg, #e8f7ee 0%, #f8fdf8 100%);
+    margin: -16px 0 0;
+    padding: 32px 20px 24px;
+    border-radius: 0 0 28px 28px;
+  }
+  .garden-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+  }
+  .garden-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--green-deep);
+    letter-spacing: -0.01em;
+  }
+  .garden-total {
+    text-align: right;
+  }
+  .garden-total__num {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--green-deep);
+    line-height: 1;
+  }
+  .garden-total__label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--green-deep);
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .garden-stage {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 12px;
+    min-height: 140px;
+    padding: 8px 0 4px;
+  }
+  .garden-plant {
+    width: 70px;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    transform-origin: bottom center;
+  }
+  .garden-plant.selected {
+    transform: scale(1.15);
+  }
+  .garden-plant.dim { opacity: 0.55; }
+  .garden-plant svg { width: 100%; height: auto; transform-origin: bottom center; }
+  .garden-plant--seed svg { animation: sway-soft 2.4s ease-in-out infinite; }
+  .garden-plant--sprout svg { animation: sway-soft 2.8s ease-in-out infinite; }
+  .garden-plant--bush svg { animation: sway-med 3.2s ease-in-out infinite; }
+  .garden-plant--tree svg { animation: sway-slow 3.6s ease-in-out infinite; }
+  .garden-plant--flower svg { animation: sway-slow 4.2s ease-in-out infinite; }
+
+  .garden-cards {
+    padding: 20px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .garden-card {
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    opacity: 0.55;
+  }
+  .garden-card.selected {
+    background: var(--text);
+    border-color: var(--text);
+    opacity: 1;
+    box-shadow: var(--shadow-lg);
+  }
+  .garden-card__name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .garden-card.selected .garden-card__name { color: #fff; }
+  .garden-card__bar {
+    width: 80px;
+    height: 6px;
+    background: var(--soft);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .garden-card.selected .garden-card__bar { background: rgba(255,255,255,0.2); }
+  .garden-card__bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .garden-card.selected .garden-card__bar-fill { background: #fff; }
+  .garden-card__days {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--muted);
+    min-width: 24px;
+    text-align: right;
+  }
+  .garden-card.selected .garden-card__days { color: #fff; }
+
+  .garden-detail {
+    margin: 24px 20px 0;
+    padding: 20px;
+    border-radius: 20px;
+    background: var(--surface);
+    animation: fadeSlideUp 0.4s ease;
+  }
+  .garden-detail__title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .heatmap {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 16px;
+  }
+  .heatmap__cell {
+    aspect-ratio: 1;
+    border-radius: 5px;
+    background: var(--border);
+    transition: transform 0.2s ease;
+  }
+  .heatmap__cell.done { background: var(--green); }
+  .heatmap__cell.grace { background: var(--green-border); }
+  .heatmap__cell.future { background: var(--soft); opacity: 0.5; }
+  .heatmap__cell.today { box-shadow: 0 0 0 2px var(--text); }
+
+  .heatmap-legend {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .heatmap-legend__item { display: flex; align-items: center; gap: 5px; }
+  .heatmap-legend__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .stat-card__value {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .stat-card__label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  .quote-block {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--green-light);
+    border-left: 3px solid var(--green);
+    font-size: 13px;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--green-deep);
+    line-height: 1.5;
+  }
+
+  /* ============================================
+     REMINDERS SCREEN
+     ============================================ */
+  .screen-title {
+    padding: 0 20px;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .screen-subtitle {
+    padding: 0 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .tone-selector {
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .tone-btn {
+    padding: 14px 8px;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1.5px solid transparent;
+    text-align: center;
+    transition: all 0.25s ease;
+  }
+  .tone-btn.active {
+    background: var(--bg);
+    border-color: var(--text);
+    box-shadow: var(--shadow-md);
+  }
+  .tone-btn__emoji { font-size: 22px; display: block; }
+  .tone-btn__label {
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+
+  .preview-card {
+    margin: 0 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border-radius: 18px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+  }
+  .preview-card__top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .preview-card__top::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background: var(--green);
+  }
+  .preview-card__title {
+    font-size: 14px;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+  .preview-card__msg {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .reminder-row {
+    margin: 0 20px;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .reminder-row__content { flex: 1; min-width: 0; }
+  .reminder-row__title {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .reminder-row__sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* Toggle */
+  .toggle {
+    width: 46px;
+    height: 28px;
+    border-radius: 14px;
+    background: var(--border);
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.25s ease;
+    cursor: pointer;
+  }
+  .toggle.on { background: var(--green); }
+  .toggle__thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .toggle.on .toggle__thumb { transform: translateX(18px); }
+
+  /* ============================================
+     PROFILE SCREEN
+     ============================================ */
+  .profile-hero {
+    margin: 0 20px 16px;
+    padding: 24px 20px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(61,158,95,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .profile-name {
+    font-size: 20px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .profile-tagline {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    position: relative;
+  }
+
+  .week-score-card {
+    margin: 0 20px 16px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border-radius: 18px;
+  }
+  .week-score-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .week-score-card__title {
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .week-score-card__num {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--green);
+  }
+  .week-score-bar {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .week-score-bar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green) 0%, #5fc080 100%);
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+  .week-score-card__sub {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .gallery-row {
+    padding: 0 20px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -20px 16px;
+    padding: 0 20px;
+  }
+  .gallery-row::-webkit-scrollbar { display: none; }
+  .gallery-card {
+    flex-shrink: 0;
+    width: 96px;
+    padding: 14px 8px 10px;
+    border-radius: 16px;
+    background: var(--surface);
+    text-align: center;
+  }
+  .gallery-card__plant {
+    width: 50px;
+    height: 60px;
+    margin: 0 auto 6px;
+  }
+  .gallery-card__name {
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .gallery-card__days {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .settings-list {
+    margin: 0 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+  }
+  .settings-row {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .settings-row__content { flex: 1; min-width: 0; }
+  .settings-row__title {
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .settings-row__sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .settings-row__value {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+  }
+
+  /* Stepper inline */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stepper__btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  .stepper__btn:active { transform: scale(0.92); }
+  .stepper__value {
+    min-width: 20px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  /* ============================================
+     BOTTOM NAV
+     ============================================ */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 12px calc(8px + var(--safe-bottom));
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 50;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 2px;
+    color: var(--muted);
+    transition: color 0.2s ease;
+    position: relative;
+  }
+  .nav-item.active { color: var(--text); }
+  .nav-item svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .nav-item.active svg { transform: scale(1.1); }
+  .nav-item__label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-fab {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--text);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -28px;
+    box-shadow: var(--shadow-fab);
+    transition: transform 0.25s ease;
+    position: relative;
+  }
+  .nav-fab::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: var(--bg);
+    z-index: -1;
+  }
+  .nav-fab:active { transform: scale(0.92); }
+  .nav-fab svg {
+    width: 24px;
+    height: 24px;
+    stroke: #fff;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  /* Hide bottom nav on add screen */
+  .nav-hidden .bottom-nav { display: none; }
+
+  /* Toast */
+  .toast {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 12px 20px;
+    background: rgba(26,26,26,0.95);
+    color: #fff;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 100;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: var(--shadow-lg);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ============================================
+     SAVE INDICATOR (discret, en haut)
+     ============================================ */
+  .save-indicator {
+    position: fixed;
+    top: calc(14px + var(--safe-top));
+    left: 50%;
+    transform: translateX(-50%) translateY(-30px);
+    padding: 6px 12px 6px 10px;
+    background: rgba(61, 158, 95, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 14px rgba(61, 158, 95, 0.35);
+  }
+  .save-indicator.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .save-indicator__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(255,255,255,0.8);
+  }
+
+  /* ============================================
+     HEATMAP — mode édition
+     ============================================ */
+  .heatmap__cell.editable { cursor: pointer; }
+  .heatmap__cell.editable:active {
+    transform: scale(0.82);
+    transition: transform 0.1s ease;
+  }
+  .heatmap-hint {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    margin: -8px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.4;
+  }
+  .heatmap-hint__icon {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  /* ============================================
+     SAISIE MANUELLE & SAUVEGARDE
+     ============================================ */
+  .manual-form {
+    margin: 0 20px;
+    padding: 16px;
+    border-radius: 18px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+  }
+  .manual-form__intro {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin: 0 0 14px;
+    line-height: 1.5;
+  }
+  .manual-form__field { margin-bottom: 14px; }
+  .manual-form__field:last-of-type { margin-bottom: 0; }
+  .manual-form__label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .manual-form input[type="date"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: 44px;
+  }
+  .manual-form input[type="date"]:focus {
+    outline: none;
+    border-color: var(--text);
+  }
+
+  .status-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .status-btn {
+    padding: 10px 4px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1.5px solid transparent;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .status-btn:active { transform: scale(0.96); }
+  .status-btn__dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+  .status-btn[data-status="done"] .status-btn__dot { background: var(--green); }
+  .status-btn[data-status="grace"] .status-btn__dot { background: var(--green-border); }
+  .status-btn[data-status="none"] .status-btn__dot {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+  }
+  .status-btn.selected[data-status="done"] {
+    background: var(--green-light);
+    border-color: var(--green);
+    color: var(--green-deep);
+  }
+  .status-btn.selected[data-status="grace"] {
+    background: var(--green-light);
+    border-color: var(--green-border);
+    color: var(--green-deep);
+  }
+  .status-btn.selected[data-status="none"] {
+    background: var(--soft);
+    border-color: var(--muted);
+  }
+
+  .btn-soft {
+    width: 100%;
+    margin-top: 14px;
+    padding: 13px;
+    border-radius: 12px;
+    background: var(--text);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    transition: all 0.2s ease;
+    letter-spacing: 0.01em;
+  }
+  .btn-soft:active { transform: scale(0.98); }
+  .btn-soft:disabled {
+    background: var(--soft);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  .backup-meta {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-align: center;
+    margin: 12px 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    letter-spacing: 0.02em;
+  }
+  .backup-meta__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px rgba(61, 158, 95, 0.5);
+    animation: pulseSoft 2.5s ease-in-out infinite;
+  }
+
+  /* ============================================
+     WELCOME SCREEN — onboarding poétique
+     ============================================ */
+  .welcome-screen {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at top, rgba(61,158,95,0.08), transparent 60%),
+      linear-gradient(180deg, #fafaf8 0%, #f3f7f4 100%);
+    z-index: 100;
+    display: none;
+    padding: 0;
+    overflow: hidden;
+    flex-direction: column;
+  }
+  .welcome-screen.active {
+    display: flex;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .welcome-track {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  .welcome-track::-webkit-scrollbar { display: none; }
+
+  .welcome-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    padding: calc(48px + var(--safe-top)) 28px 24px;
+    min-width: 0;
+  }
+  .welcome-slide__visual {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    padding: 20px 0 32px;
+  }
+  .welcome-slide__content { padding-bottom: 8px; }
+
+  .welcome-eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green-deep);
+    margin-bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .welcome-eyebrow::before {
+    content: '';
+    width: 14px;
+    height: 1.5px;
+    background: var(--green);
+    border-radius: 1px;
+  }
+
+  .welcome-title {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0 0 14px;
+    color: var(--text);
+  }
+
+  .welcome-body {
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: #4a4a4a;
+    margin: 0;
+    max-width: 380px;
+  }
+
+  .welcome-footer {
+    padding: 12px 24px calc(20px + var(--safe-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    background: linear-gradient(180deg, transparent, rgba(243,247,244,0.95) 30%);
+  }
+
+  .welcome-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .welcome-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .welcome-dot.active {
+    width: 28px;
+    border-radius: 3px;
+    background: var(--text);
+  }
+
+  .welcome-cta {
+    width: 100%;
+    max-width: 340px;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--text);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  .welcome-cta:active { transform: scale(0.98); }
+
+  .welcome-skip {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    padding: 8px 12px;
+    letter-spacing: 0.02em;
+  }
+  .welcome-skip:active { color: var(--text); }
+
+  /* Slide 1 : hero plant en majesté */
+  .welcome-hero-plant {
+    width: 200px;
+    height: 240px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .welcome-hero-plant::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 30px;
+    background: radial-gradient(ellipse, rgba(61,158,95,0.18) 0%, transparent 70%);
+    filter: blur(4px);
+  }
+  .welcome-hero-plant svg {
+    width: 100%;
+    height: 100%;
+    transform-origin: bottom center;
+    animation: sway-soft 3.2s ease-in-out infinite;
+    position: relative;
+  }
+
+  /* Slide 2 : trio des principes */
+  .welcome-trio {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .welcome-trio__item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    animation: fadeSlideUp 0.5s ease both;
+  }
+  .welcome-trio__item:nth-child(1) { animation-delay: 0.1s; }
+  .welcome-trio__item:nth-child(2) { animation-delay: 0.2s; }
+  .welcome-trio__item:nth-child(3) { animation-delay: 0.3s; }
+
+  .welcome-trio__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--green-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .welcome-trio__title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .welcome-trio__sub {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  /* Slide 3 : carte du pacte */
+  .welcome-pact {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    color: #fff;
+    border-radius: 22px;
+    padding: 24px 22px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-pact::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(61,158,95,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulseSoft 4s ease-in-out infinite;
+  }
+  .welcome-pact__title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .welcome-pact__line {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+    padding: 12px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    color: rgba(255,255,255,0.85);
+  }
+  .welcome-pact__line:first-of-type { border-top: none; padding-top: 0; }
+  .welcome-pact__line span {
+    color: #7dd197;
+    font-weight: 900;
+  }
+
+  /* ============================================
+     PAUSE STATES — cartes & visualisations
+     ============================================ */
+  .habit-card.paused {
+    background: #f4f6fa;
+    border-color: #d8def0;
+  }
+  .habit-card.paused .habit-plant svg {
+    animation-play-state: paused !important;
+    filter: grayscale(0.45) opacity(0.85);
+  }
+  .habit-card.paused .habit-name {
+    color: #5b6478;
+  }
+  .pause-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #d8def0;
+    color: #4a5470;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .pause-badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4a5470;
+  }
+  .pause-note {
+    font-size: 12px;
+    font-weight: 700;
+    color: #5b6478;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* Heatmap pause cells */
+  .heatmap__cell.paused { background: #d8def0; }
+
+  /* Week strip pause */
+  .week-dot.paused {
+    background: #d8def0;
+    color: #4a5470;
+  }
+
+  /* Card menu button (3 dots) */
+  .habit-menu-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s ease;
+    z-index: 2;
+  }
+  .habit-menu-btn:active {
+    background: rgba(0,0,0,0.06);
+    color: var(--text);
+  }
+  .habit-menu-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+  .habit-card.paused .habit-menu-btn { color: #6b7591; }
+
+  /* Section divider for paused habits */
+  .paused-divider {
+    margin: 24px 20px 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .paused-divider__line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .paused-divider__label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ============================================
+     ACTION SHEET — bottom modal pour les actions
+     ============================================ */
+  .sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    z-index: 150;
+    pointer-events: none;
+    transition: background 0.3s ease;
+  }
+  .sheet-backdrop.show {
+    background: rgba(0,0,0,0.42);
+    pointer-events: auto;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  .action-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg);
+    border-radius: 24px 24px 0 0;
+    padding: 8px 12px calc(20px + var(--safe-bottom));
+    z-index: 160;
+    transition: transform 0.36s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.18);
+  }
+  .action-sheet.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .action-sheet__handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 8px auto 14px;
+  }
+  .action-sheet__title {
+    font-size: 15px;
+    font-weight: 900;
+    text-align: center;
+    margin: 0 12px 4px;
+    letter-spacing: -0.01em;
+  }
+  .action-sheet__subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 14px;
+    padding: 0 12px;
+    line-height: 1.4;
+  }
+
+  .action-row {
+    width: 100%;
+    padding: 12px 12px;
+    border-radius: 14px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: left;
+    transition: background 0.15s ease;
+    margin-bottom: 2px;
+    cursor: pointer;
+  }
+  .action-row:active { background: var(--soft); }
+  .action-row__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .action-row__content { flex: 1; min-width: 0; }
+  .action-row__title { font-size: 14px; font-weight: 800; line-height: 1.2; }
+  .action-row__sub { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+  .action-row--danger { color: #c93838; }
+  .action-row--danger .action-row__icon {
+    background: #fbe9e9;
+  }
+  .action-row--accent .action-row__icon {
+    background: var(--green-light);
+  }
+  .action-row--rest .action-row__icon {
+    background: #e9eef9;
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ===========================================
+       WELCOME / ONBOARDING — concept de l'app
+       =========================================== -->
+  <div class="welcome-screen" id="welcome-screen">
+    <button class="welcome-skip" onclick="closeWelcome()" style="position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:2;">Passer</button>
+
+    <div class="welcome-track" id="welcome-track">
+
+      <!-- Slide 1 : la promesse -->
+      <div class="welcome-slide" data-slide="1">
+        <div class="welcome-slide__visual">
+          <div class="welcome-hero-plant" id="welcome-hero-plant"><!-- SVG injecté --></div>
+        </div>
+        <div class="welcome-slide__content">
+          <div class="welcome-eyebrow">Pour reprendre doucement</div>
+          <h1 class="welcome-title">Une petite porte<br>vaut mieux qu'une grande montagne.</h1>
+          <p class="welcome-body">
+            Ce n'est pas une app de performance. C'est un compagnon discret qui t'aide à revenir vers toi-même, un geste minuscule à la fois.
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 2 : les 3 principes -->
+      <div class="welcome-slide" data-slide="2">
+        <div class="welcome-slide__visual">
+          <div class="welcome-trio">
+            <div class="welcome-trio__item">
+              <div class="welcome-trio__icon">🌱</div>
+              <div>
+                <div class="welcome-trio__title">Des micro-actions</div>
+                <div class="welcome-trio__sub">2 minutes max. Si c'est trop, on rapetisse encore.</div>
+              </div>
+            </div>
+            <div class="welcome-trio__item">
+              <div class="welcome-trio__icon">⚓</div>
+              <div>
+                <div class="welcome-trio__title">Un moment qui existe déjà</div>
+                <div class="welcome-trio__sub">On ancre la nouvelle action à un geste de ta journée.</div>
+              </div>
+            </div>
+            <div class="welcome-trio__item">
+              <div class="welcome-trio__icon">✨</div>
+              <div>
+                <div class="welcome-trio__title">Un ressenti, pas un objectif</div>
+                <div class="welcome-trio__sub">On change pour se sentir mieux, pas pour cocher.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="welcome-slide__content">
+          <div class="welcome-eyebrow">La méthode</div>
+          <h1 class="welcome-title">Trois ingrédients,<br>aucun effort héroïque.</h1>
+          <p class="welcome-body">
+            Une activité tient quand elle est petite, accrochée à un moment naturel, et liée à une sensation que tu veux vraiment.
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 3 : le pacte -->
+      <div class="welcome-slide" data-slide="3">
+        <div class="welcome-slide__visual">
+          <div class="welcome-pact">
+            <div class="welcome-pact__title">Notre pacte</div>
+            <div class="welcome-pact__line">Tu ne fais que ce que tu peux faire <span>aujourd'hui</span>.</div>
+            <div class="welcome-pact__line">Si tu rates, l'app dit <span>bienvenue</span>, jamais "tu as raté".</div>
+            <div class="welcome-pact__line">Tu peux mettre <span>en pause</span> sans casser ton élan.</div>
+            <div class="welcome-pact__line">Tu plantes ce que tu veux — <span>petit, ancré, choisi</span>.</div>
+          </div>
+        </div>
+        <div class="welcome-slide__content">
+          <div class="welcome-eyebrow">Sans honte, sans pression</div>
+          <h1 class="welcome-title">Reviens.<br>C'est tout ce qu'on demande.</h1>
+          <p class="welcome-body">
+            Chaque jour où tu reviens, ton jardin pousse un peu. Pas parce que tu performes — parce que tu es là.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="welcome-footer">
+      <div class="welcome-dots" id="welcome-dots">
+        <div class="welcome-dot active"></div>
+        <div class="welcome-dot"></div>
+        <div class="welcome-dot"></div>
+      </div>
+      <button class="welcome-cta" id="welcome-cta" onclick="welcomeNext()">Continuer</button>
+    </div>
+  </div>
+
+  <!-- ===========================================
+       HOME SCREEN
+       =========================================== -->
+  <section class="screen active" id="screen-home" data-screen="home">
+    <header class="home-header">
+      <div class="home-header__left">
+        <div class="home-header__date" id="home-date">Jeudi 30 avril</div>
+        <div class="home-header__greeting" id="home-greeting">Bonjour 👋</div>
+      </div>
+      <div class="progress-ring" aria-hidden="true">
+        <svg viewBox="0 0 64 64">
+          <circle class="progress-ring__bg" cx="32" cy="32" r="28" fill="none" stroke-width="6"></circle>
+          <circle class="progress-ring__fg" id="ring-fg" cx="32" cy="32" r="28" fill="none" stroke-width="6"
+            stroke-dasharray="175.93" stroke-dashoffset="175.93"></circle>
+        </svg>
+        <div class="progress-ring__text" id="ring-text">0/0</div>
+      </div>
+    </header>
+
+    <div class="streak-banner" id="streak-banner">
+      <div class="streak-banner__icon">🔥</div>
+      <div class="streak-banner__content">
+        <div class="streak-banner__title" id="streak-title">5 jours de suite</div>
+        <div class="streak-banner__sub" id="streak-sub">Tu prends de l'élan, c'est précieux.</div>
+      </div>
+    </div>
+
+    <div id="celebrate-wrap"></div>
+
+    <div class="label-section container">Aujourd'hui</div>
+
+    <div class="habits-list" id="habits-list">
+      <!-- populated -->
+    </div>
+
+    <div class="grace-row" id="grace-row">
+      <span class="pill pill-grace">🛡️ <span id="grace-count">2</span> jours de rattrapage disponibles</span>
+    </div>
+  </section>
+
+  <!-- ===========================================
+       GARDEN SCREEN
+       =========================================== -->
+  <section class="screen" id="screen-garden" data-screen="garden">
+    <div class="garden-hero">
+      <div class="garden-title-row">
+        <div class="garden-title">Mon Jardin</div>
+        <div class="garden-total">
+          <div class="garden-total__num" id="garden-total-num">0</div>
+          <div class="garden-total__label">jours cumulés</div>
+        </div>
+      </div>
+      <div class="garden-stage" id="garden-stage">
+        <!-- plants -->
+      </div>
+    </div>
+
+    <div class="garden-cards" id="garden-cards">
+      <!-- cards -->
+    </div>
+
+    <div id="garden-detail-wrap"></div>
+  </section>
+
+  <!-- ===========================================
+       ADD HABIT SCREEN
+       =========================================== -->
+  <section class="screen add-screen" id="screen-add" data-screen="add">
+    <div class="add-header">
+      <button class="icon-btn" onclick="closeAdd()" aria-label="Fermer">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="progress-bar">
+        <div class="progress-bar__fill" id="add-progress" style="width: 25%"></div>
+      </div>
+      <button class="icon-btn" onclick="addBack()" aria-label="Retour" id="add-back-btn">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="step-dots">
+      <div class="step-dot active" data-dot="1"></div>
+      <div class="step-dot" data-dot="2"></div>
+      <div class="step-dot" data-dot="3"></div>
+      <div class="step-dot" data-dot="4"></div>
+    </div>
+
+    <!-- STEP 1: Behavior -->
+    <div class="step active" data-step="1">
+      <h2 class="step-title">Quelle activité ?</h2>
+      <p class="step-subtitle">Choisis quelque chose qui compte vraiment pour toi en ce moment.</p>
+
+      <input type="text" class="text-input" id="input-name" placeholder="Ex: Méditer, Lire, Marcher..." maxlength="40">
+
+      <div class="chips-row" id="name-chips">
+        <button class="chip" data-name="Ouvrir les volets">Ouvrir les volets</button>
+        <button class="chip" data-name="Boire 3 gorgées">Boire 3 gorgées</button>
+        <button class="chip" data-name="S'étirer 20 sec">S'étirer 20 sec</button>
+        <button class="chip" data-name="Ranger 1 objet">Ranger 1 objet</button>
+        <button class="chip" data-name="Aérer 1 minute">Aérer 1 minute</button>
+        <button class="chip" data-name="Regarder dehors">Regarder dehors</button>
+        <button class="chip" data-name="Toucher la poignée">Toucher la poignée</button>
+        <button class="chip" data-name="Sortir 10 secondes">Sortir 10 secondes</button>
+        <button class="chip" data-name="Marcher 2 minutes">Marcher 2 minutes</button>
+        <button class="chip" data-name="Lire un message">Lire un message</button>
+        <button class="chip" data-name="Envoyer un emoji">Envoyer un emoji</button>
+        <button class="chip" data-name="Écrire une victoire">Écrire une victoire</button>
+      </div>
+
+      <div class="blocked-banner" id="blocked-banner" style="display:none">
+        <span>🌿</span>
+        <div id="blocked-banner-text">Tu as déjà beaucoup d'activités actives — chaque graine a besoin d'attention.</div>
+      </div>
+
+      <div class="step-cta">
+        <button class="btn-primary" id="step1-next" disabled onclick="goStep(2)">Continuer</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Anchor -->
+    <div class="step" data-step="2">
+      <h2 class="step-title">Quand est-ce que tu vas le faire ?</h2>
+      <p class="step-subtitle">Accroche cette activité à un moment qui existe déjà dans ta journée.</p>
+
+      <div class="hint-box hint-box--blue">
+        <span class="hint-box__icon">💡</span>
+        <div>Les activités s'installent mieux après un moment naturel qui revient chaque jour.</div>
+      </div>
+
+      <div class="options-list" id="anchor-list">
+        <!-- options -->
+      </div>
+
+      <div class="step-cta">
+        <button class="btn-primary" id="step2-next" disabled onclick="goStep(3)">Continuer</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Micro -->
+    <div class="step" data-step="3">
+      <h2 class="step-title">Quelle version minuscule ?</h2>
+      <p class="step-subtitle">Réduis-la jusqu'à ce qu'elle paraisse presque ridicule.</p>
+
+      <div class="hint-box hint-box--green">
+        <span class="hint-box__icon">🌱</span>
+        <div>Ne jamais rater est plus important que faire beaucoup. Vise 2 minutes maximum.</div>
+      </div>
+
+      <input type="text" class="text-input" id="input-micro" placeholder="Ex: Méditer 2 min" maxlength="50">
+
+      <div class="chips-row" id="micro-chips">
+        <!-- chips -->
+      </div>
+
+      <div class="step-cta">
+        <button class="btn-primary" id="step3-next" disabled onclick="goStep(4)">Continuer</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Feeling -->
+    <div class="step" data-step="4">
+      <h2 class="step-title">Comment tu veux te sentir après ?</h2>
+      <p class="step-subtitle">Choisis le ressenti qui te tire vers le haut.</p>
+
+      <div class="hint-box hint-box--amber">
+        <span class="hint-box__icon">✨</span>
+        <div>On change parce qu'on veut se sentir différemment, pas pour cocher une case.</div>
+      </div>
+
+      <div class="options-list" id="feeling-list">
+        <!-- options -->
+      </div>
+
+      <div id="recap-wrap"></div>
+
+      <div class="step-cta">
+        <button class="btn-primary" id="step4-finish" disabled onclick="finishAdd()">Créer mon activité</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================
+       REMINDERS SCREEN
+       =========================================== -->
+  <section class="screen" id="screen-reminders" data-screen="reminders">
+    <h1 class="screen-title">Rappels bienveillants</h1>
+    <p class="screen-subtitle">Liés à ton ancre, jamais à une heure abstraite. Tu choisis le ton.</p>
+
+    <div class="label-section container">Ton du rappel</div>
+    <div class="tone-selector" id="tone-selector">
+      <button class="tone-btn active" data-tone="doux">
+        <span class="tone-btn__emoji">🌿</span>
+        <div class="tone-btn__label">Doux</div>
+      </button>
+      <button class="tone-btn" data-tone="neutre">
+        <span class="tone-btn__emoji">⚪</span>
+        <div class="tone-btn__label">Neutre</div>
+      </button>
+      <button class="tone-btn" data-tone="motivant">
+        <span class="tone-btn__emoji">🔥</span>
+        <div class="tone-btn__label">Motivant</div>
+      </button>
+    </div>
+
+    <div class="label-section container">Aperçu en direct</div>
+    <div class="preview-card">
+      <div class="preview-card__top">1% mieux · maintenant</div>
+      <div class="preview-card__title" id="preview-title">Petit rappel doux 🌿</div>
+      <div class="preview-card__msg" id="preview-msg">Si tu veux, c'est un bon moment pour méditer 2 min. Sinon ça ira aussi.</div>
+    </div>
+
+    <div class="label-section container">Options</div>
+
+    <div class="reminder-row">
+      <div class="reminder-row__content">
+        <div class="reminder-row__title">Recap du soir</div>
+        <div class="reminder-row__sub">Un petit mot positif chaque soir, jamais culpabilisant</div>
+      </div>
+      <div class="toggle on" data-toggle="evening" onclick="toggleSwitch(this)">
+        <div class="toggle__thumb"></div>
+      </div>
+    </div>
+
+    <div class="reminder-row">
+      <div class="reminder-row__content">
+        <div class="reminder-row__title">Alerte douce à 21h</div>
+        <div class="reminder-row__sub">Si une activité n'est pas faite. Tu peux désactiver à tout moment.</div>
+      </div>
+      <div class="toggle" data-toggle="soft-alert" onclick="toggleSwitch(this)">
+        <div class="toggle__thumb"></div>
+      </div>
+    </div>
+
+    <div class="reminder-row">
+      <div class="reminder-row__content">
+        <div class="reminder-row__title">Notifications par activité</div>
+        <div class="reminder-row__sub">Liées à l'ancre choisie</div>
+      </div>
+      <div class="toggle on" data-toggle="per-habit" onclick="toggleSwitch(this)">
+        <div class="toggle__thumb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================
+       PROFILE SCREEN
+       =========================================== -->
+  <section class="screen" id="screen-profile" data-screen="profile">
+    <div class="profile-hero">
+      <div class="profile-avatar">🌱</div>
+      <div class="profile-name">Toi, version douce</div>
+      <div class="profile-tagline">1% mieux chaque jour · depuis <span id="days-since">le début</span></div>
+    </div>
+
+    <div class="week-score-card">
+      <div class="week-score-card__top">
+        <div class="week-score-card__title">Ta semaine</div>
+        <div class="week-score-card__num" id="week-score">0%</div>
+      </div>
+      <div class="week-score-bar">
+        <div class="week-score-bar__fill" id="week-bar" style="width: 0%"></div>
+      </div>
+      <div class="week-score-card__sub" id="week-sub">Chaque pas compte.</div>
+    </div>
+
+    <div class="label-section container">Mon jardin (en cours)</div>
+    <div class="gallery-row" id="gallery-row">
+      <!-- plants -->
+    </div>
+
+    <div class="label-section container">Saisie manuelle</div>
+    <div class="manual-form">
+      <p class="manual-form__intro">
+        Pour rattraper un jour oublié. Le quotidien se valide depuis l'écran d'accueil — c'est plus naturel.
+      </p>
+      <div class="manual-form__field">
+        <div class="manual-form__label">Activité</div>
+        <div class="chips-row" id="manual-habit-chips"></div>
+      </div>
+      <div class="manual-form__field">
+        <div class="manual-form__label">Date</div>
+        <input type="date" id="manual-date">
+      </div>
+      <div class="manual-form__field">
+        <div class="manual-form__label">État</div>
+        <div class="status-row">
+          <button class="status-btn" data-status="done">
+            <div class="status-btn__dot"></div>
+            Fait
+          </button>
+          <button class="status-btn" data-status="grace">
+            <div class="status-btn__dot"></div>
+            Rattrapage
+          </button>
+          <button class="status-btn" data-status="none">
+            <div class="status-btn__dot"></div>
+            Aucun
+          </button>
+        </div>
+      </div>
+      <button class="btn-soft" id="manual-apply" disabled onclick="applyManualEntry()">Enregistrer</button>
+    </div>
+
+    <div class="label-section container">Sauvegarde</div>
+    <div class="settings-list">
+      <div class="settings-row" onclick="exportData()">
+        <div class="settings-row__icon">📤</div>
+        <div class="settings-row__content">
+          <div class="settings-row__title">Exporter mes données</div>
+          <div class="settings-row__sub">Télécharge un fichier JSON</div>
+        </div>
+      </div>
+      <div class="settings-row" onclick="openImport()">
+        <div class="settings-row__icon">📥</div>
+        <div class="settings-row__content">
+          <div class="settings-row__title">Importer des données</div>
+          <div class="settings-row__sub">Depuis un fichier JSON exporté</div>
+        </div>
+      </div>
+    </div>
+    <div class="backup-meta">
+      <div class="backup-meta__dot"></div>
+      <span id="backup-meta-text">Sauvegarde locale active</span>
+    </div>
+
+    <div class="label-section container">Paramètres</div>
+    <div class="settings-list">
+      <div class="settings-row">
+        <div class="settings-row__icon">🛡️</div>
+        <div class="settings-row__content">
+          <div class="settings-row__title">Jours de rattrapage</div>
+          <div class="settings-row__sub">Pour préserver ton streak</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper__btn" onclick="changeGrace(-1)">−</button>
+          <div class="stepper__value" id="grace-stepper">2</div>
+          <button class="stepper__btn" onclick="changeGrace(1)">+</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row__icon">🎯</div>
+        <div class="settings-row__content">
+          <div class="settings-row__title">Activités actives</div>
+          <div class="settings-row__sub">Aucune limite — c'est ton jardin</div>
+        </div>
+        <div class="settings-row__value" id="active-count-value">0</div>
+      </div>
+      <div class="settings-row" onclick="openWelcome()">
+        <div class="settings-row__icon">📖</div>
+        <div class="settings-row__content">
+          <div class="settings-row__title">Revoir l'introduction</div>
+          <div class="settings-row__sub">Le concept et le pacte de l'app</div>
+        </div>
+      </div>
+      <div class="settings-row" onclick="resetData()">
+        <div class="settings-row__icon">🔄</div>
+        <div class="settings-row__content">
+          <div class="settings-row__title">Recommencer à zéro</div>
+          <div class="settings-row__sub">Efface toutes les données</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:11px;font-weight:700;color:var(--muted);margin:24px 20px 0;letter-spacing:0.05em;">
+      1% MIEUX · v2.0
+    </div>
+  </section>
+
+  <!-- ===========================================
+       BOTTOM NAVIGATION
+       =========================================== -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="nav-item active" data-nav="home">
+      <svg viewBox="0 0 24 24"><path d="M12 3l9 7v10a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1V10z"/></svg>
+      <div class="nav-item__label">Aujourd'hui</div>
+    </button>
+    <button class="nav-item" data-nav="garden">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 22V8"/>
+        <path d="M12 8c-3 0-5-2-5-5 3 0 5 2 5 5z"/>
+        <path d="M12 11c3 0 5-2 5-5-3 0-5 2-5 5z"/>
+        <path d="M5 22h14"/>
+      </svg>
+      <div class="nav-item__label">Jardin</div>
+    </button>
+    <button class="nav-fab" onclick="openAdd()" aria-label="Ajouter une activité">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button class="nav-item" data-nav="reminders">
+      <svg viewBox="0 0 24 24">
+        <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+      <div class="nav-item__label">Rappels</div>
+    </button>
+    <button class="nav-item" data-nav="profile">
+      <svg viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <div class="nav-item__label">Profil</div>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- ===========================================
+       ACTION SHEET — menu contextuel par carte
+       =========================================== -->
+  <div class="sheet-backdrop" id="sheet-backdrop" onclick="closeSheet()"></div>
+  <div class="action-sheet" id="action-sheet" role="dialog">
+    <div class="action-sheet__handle"></div>
+    <div class="action-sheet__title" id="sheet-title">Activité</div>
+    <div class="action-sheet__subtitle" id="sheet-subtitle"></div>
+    <div id="sheet-actions"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================
+   STATE & PERSISTENCE
+   ============================================ */
+const todayKey = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+const dateKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+/* ============================================
+   STORAGE — module fortifié
+   - Schéma versionné (v2) avec enveloppe { schema, savedAt, data }
+   - 3 sauvegardes rotatives en cas de corruption
+   - Validation/sanitisation à la lecture
+   - Export/import JSON
+   - Migration transparente depuis v1
+   - La donnée ne porte AUCUNE marque sur son origine
+     (parcours naturel et parcours de secours = même format)
+   ============================================ */
+const Storage = {
+  KEY: 'habit_tracker_v2',
+  LEGACY_KEY: 'habit_tracker_v1',
+  BACKUP_KEYS: ['habit_tracker_backup_1', 'habit_tracker_backup_2', 'habit_tracker_backup_3'],
+  SCHEMA: 2,
+
+  _safeParse(raw) {
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  },
+
+  /**
+   * Valide et sanitise un payload. Renvoie un objet `data` propre, ou null si irrécupérable.
+   * Accepte aussi bien { schema, data } (v2) que payload brut (v1 legacy).
+   */
+  _validate(envelope) {
+    if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope)) return null;
+
+    let data = (envelope.schema && envelope.data) ? envelope.data : envelope;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+
+    // Le payload doit être reconnaissable comme un état d'application : on exige soit
+    // un tableau habits, soit au moins une clé connue. Sinon on refuse plutôt que d'accepter
+    // un import qui écraserait silencieusement les données par un état vide.
+    const knownKeys = ['habits', 'graceDaysSetting', 'selectedHabitId', 'tone', 'toggles'];
+    const hasShape = knownKeys.some(k => k in data);
+    if (!hasShape) return null;
+
+    if (!Array.isArray(data.habits)) data.habits = [];
+
+    const validHabits = [];
+    for (const h of data.habits) {
+      if (!h || typeof h !== 'object') continue;
+      if (!h.id || typeof h.id !== 'string') continue;
+      if (!h.name || typeof h.name !== 'string') continue;
+
+      // History: ne garder que les clés au format YYYY-MM-DD avec valeur 'done' ou 'grace'
+      const cleanHist = {};
+      if (h.history && typeof h.history === 'object') {
+        for (const [k, v] of Object.entries(h.history)) {
+          if (/^\d{4}-\d{2}-\d{2}$/.test(k) && (v === 'done' || v === 'grace')) {
+            cleanHist[k] = v;
+          }
+        }
+      }
+      h.history = cleanHist;
+
+      if (!h.anchor || typeof h.anchor !== 'object') h.anchor = { icon: '☕', label: 'Après mon café du matin' };
+      if (!h.feeling || typeof h.feeling !== 'object') h.feeling = { icon: '🌿', label: 'Apaisé·e' };
+      if (!h.micro) h.micro = h.name;
+      if (!h.createdAt || !/^\d{4}-\d{2}-\d{2}$/.test(h.createdAt)) h.createdAt = todayKey();
+
+      // Pause fields
+      if (h.pausedAt !== null && h.pausedAt !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(h.pausedAt)) {
+        h.pausedAt = null;
+      }
+      if (!Array.isArray(h.pauseLog)) {
+        h.pauseLog = [];
+      } else {
+        h.pauseLog = h.pauseLog.filter(s =>
+          s && typeof s === 'object'
+          && /^\d{4}-\d{2}-\d{2}$/.test(s.from)
+          && (s.to === null || s.to === undefined || /^\d{4}-\d{2}-\d{2}$/.test(s.to))
+        );
+      }
+
+      validHabits.push(h);
+    }
+    data.habits = validHabits;
+
+    if (typeof data.graceDaysSetting !== 'number') data.graceDaysSetting = 2;
+    data.graceDaysSetting = Math.max(0, Math.min(5, data.graceDaysSetting));
+    if (typeof data.tone !== 'string' || !['doux','neutre','motivant'].includes(data.tone)) data.tone = 'doux';
+    if (!data.toggles || typeof data.toggles !== 'object') {
+      data.toggles = { evening: true, 'soft-alert': false, 'per-habit': true };
+    }
+    return data;
+  },
+
+  /**
+   * Lit la donnée. Tente la clé principale, puis chaque sauvegarde, puis legacy v1.
+   * Si une source de secours fournit la donnée, on restaure la clé principale.
+   */
+  read() {
+    const sources = [this.KEY, ...this.BACKUP_KEYS, this.LEGACY_KEY];
+    for (const key of sources) {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const parsed = this._safeParse(raw);
+      const data = this._validate(parsed);
+      if (!data) continue;
+      if (key !== this.KEY) {
+        try { this._writeRaw(data, false); } catch (e) { /* on retournera quand même la donnée */ }
+      }
+      return data;
+    }
+    return null;
+  },
+
+  _writeRaw(data, rotate = true) {
+    const envelope = { schema: this.SCHEMA, savedAt: Date.now(), data };
+    const serialized = JSON.stringify(envelope);
+    if (rotate) {
+      const current = localStorage.getItem(this.KEY);
+      if (current) {
+        try {
+          const b1 = localStorage.getItem(this.BACKUP_KEYS[0]);
+          const b2 = localStorage.getItem(this.BACKUP_KEYS[1]);
+          if (b2) localStorage.setItem(this.BACKUP_KEYS[2], b2);
+          if (b1) localStorage.setItem(this.BACKUP_KEYS[1], b1);
+          localStorage.setItem(this.BACKUP_KEYS[0], current);
+        } catch (e) { /* quota — on saute la rotation plutôt que d'échouer le write principal */ }
+      }
+    }
+    localStorage.setItem(this.KEY, serialized);
+    return envelope.savedAt;
+  },
+
+  write(data) {
+    try {
+      const savedAt = this._writeRaw(data);
+      return { ok: true, savedAt };
+    } catch (e) {
+      // Tentative de fallback sans rotation (libère un peu de place)
+      try {
+        // Purge des backups les plus anciens
+        try { localStorage.removeItem(this.BACKUP_KEYS[2]); } catch(_) {}
+        try { localStorage.removeItem(this.BACKUP_KEYS[1]); } catch(_) {}
+        const savedAt = this._writeRaw(data, false);
+        return { ok: true, savedAt, warning: 'backups purgés' };
+      } catch (e2) {
+        return { ok: false, error: e2.message || 'écriture impossible' };
+      }
+    }
+  },
+
+  export() {
+    const data = this.read();
+    if (!data) return null;
+    return JSON.stringify({
+      schema: this.SCHEMA,
+      exportedAt: Date.now(),
+      app: '1% mieux',
+      data
+    }, null, 2);
+  },
+
+  import(json) {
+    const parsed = this._safeParse(json);
+    if (!parsed) return { ok: false, error: 'JSON invalide' };
+    const data = this._validate(parsed);
+    if (!data) return { ok: false, error: 'Format de données non reconnu' };
+    const result = this.write(data);
+    if (!result.ok) return result;
+    return { ok: true, data };
+  },
+
+  lastSavedAt() {
+    const raw = localStorage.getItem(this.KEY);
+    const parsed = this._safeParse(raw);
+    return parsed?.savedAt || null;
+  },
+
+  reset() {
+    [this.KEY, ...this.BACKUP_KEYS, this.LEGACY_KEY].forEach(k => {
+      try { localStorage.removeItem(k); } catch (e) {}
+    });
+  }
+};
+
+const ANCHORS = [
+  { icon: '☕', label: 'Après mon café du matin' },
+  { icon: '🚿', label: 'Après ma douche' },
+  { icon: '🍽️', label: 'Après le déjeuner' },
+  { icon: '🦷', label: 'Après le brossage des dents' },
+  { icon: '🛏️', label: 'Avant de me coucher' },
+  { icon: '👟', label: 'Quand je rentre du travail' }
+];
+
+const FEELINGS = [
+  { icon: '🧘', label: 'Calme' },
+  { icon: '✨', label: 'Fier·e de moi' },
+  { icon: '⚡', label: 'Énergisé·e' },
+  { icon: '🌿', label: 'Apaisé·e' },
+  { icon: '🎯', label: 'Aligné·e' }
+];
+
+const TONE_PREVIEWS = {
+  doux: {
+    title: 'Petit rappel doux 🌿',
+    msg: "Si tu veux, c'est un bon moment pour {habit}. Sinon, ça ira aussi."
+  },
+  neutre: {
+    title: 'Rappel · {habit}',
+    msg: "Tu avais prévu de {habit} après ton ancre. À toi de voir."
+  },
+  motivant: {
+    title: "C'est l'heure 🔥",
+    msg: "Allez, juste 2 minutes. {habit}. Tu sais que tu vas être fier·e après."
+  }
+};
+
+const ENCOURAGE_QUOTES = [
+  "Ce n'est pas la performance qui change tout, c'est la régularité.",
+  "Une graine ne pousse pas en la regardant. Elle pousse parce qu'on l'arrose.",
+  "Ce qui paraît minuscule aujourd'hui sera ton socle dans 6 mois.",
+  "Tu n'as pas raté. Tu as appris ce qui te bloque ce jour-là.",
+  "Reviens. C'est tout ce qu'on demande."
+];
+
+let state = {
+  habits: [],
+  graceDaysSetting: 2,
+  selectedHabitId: null,
+  tone: 'doux',
+  toggles: { evening: true, 'soft-alert': false, 'per-habit': true },
+  draft: { name: '', anchor: null, micro: '', feeling: null },
+  step: 1,
+  history: [] // archived habits
+};
+
+function loadState() {
+  const data = Storage.read();
+  if (data) {
+    state = {
+      ...state,
+      habits: data.habits || [],
+      graceDaysSetting: data.graceDaysSetting ?? 2,
+      selectedHabitId: data.selectedHabitId || null,
+      tone: data.tone || 'doux',
+      toggles: data.toggles || { evening: true, 'soft-alert': false, 'per-habit': true },
+      draft: { name: '', anchor: null, micro: '', feeling: null },
+      step: 1
+    };
+  }
+
+  // Premier lancement : seed démo (ne déclenche que si aucune trace de stockage existante,
+  // y compris dans les backups ou la version legacy)
+  const hasAnyStored = [Storage.KEY, ...Storage.BACKUP_KEYS, Storage.LEGACY_KEY]
+    .some(k => localStorage.getItem(k));
+  if ((!state.habits || state.habits.length === 0) && !hasAnyStored) {
+    seedDemoHabits();
+  }
+}
+
+function saveState() {
+  const dataToSave = {
+    habits: state.habits,
+    graceDaysSetting: state.graceDaysSetting,
+    selectedHabitId: state.selectedHabitId,
+    tone: state.tone,
+    toggles: state.toggles
+  };
+  const result = Storage.write(dataToSave);
+  if (result.ok) {
+    showSaveIndicator();
+  } else {
+    showToast('⚠️ Sauvegarde impossible — exporte tes données');
+  }
+  return result;
+}
+
+function seedDemoHabits() {
+  const today = new Date();
+  const makeHistory = (daysBack, missCount = 0) => {
+    const h = {};
+    const missDays = new Set();
+    while (missDays.size < missCount) {
+      missDays.add(Math.floor(Math.random() * daysBack));
+    }
+    for (let i = daysBack; i >= 1; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      if (!missDays.has(i)) h[dateKey(d)] = 'done';
+    }
+    return h;
+  };
+
+  state.habits = [
+    {
+      id: 'h1',
+      name: 'Rayon du matin',
+      anchor: { icon: '🛏️', label: "Après être sorti·e du lit" },
+      micro: 'Ouvrir les volets',
+      feeling: { icon: '🌿', label: 'Plus vivant·e' },
+      createdAt: dateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 9)),
+      history: makeHistory(9, 1),
+      pauseLog: []
+    },
+    {
+      id: 'h2',
+      name: 'Gorgée source',
+      anchor: { icon: '☕', label: "Après avoir ouvert les volets" },
+      micro: 'Boire 3 gorgées',
+      feeling: { icon: '⚡', label: 'Plus réveillé·e' },
+      createdAt: dateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 23)),
+      history: makeHistory(23, 3),
+      pauseLog: []
+    },
+    {
+      id: 'h3',
+      name: 'Un coin plus calme',
+      anchor: { icon: '🦷', label: "Après le brossage des dents" },
+      micro: 'Ranger 1 objet',
+      feeling: { icon: '🌬️', label: 'Moins envahi·e' },
+      createdAt: dateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 4)),
+      history: makeHistory(4, 0),
+      pauseLog: []
+    }
+  ];
+  state.selectedHabitId = state.habits[0].id;
+  saveState();
+}
+
+/* ============================================
+   PLANT SVG SYSTEM
+   ============================================ */
+function plantStage(totalDays) {
+  if (totalDays >= 120) return 'flower';
+  if (totalDays >= 60) return 'tree';
+  if (totalDays >= 21) return 'bush';
+  if (totalDays >= 7) return 'sprout';
+  return 'seed';
+}
+
+function plantSVG(stage, size = 56) {
+  const w = size;
+  const h = Math.round(size * 1.25);
+  const soil = `
+    <ellipse cx="${w/2}" cy="${h-6}" rx="${w*0.42}" ry="4" fill="#b5a085"/>
+    <ellipse cx="${w/2}" cy="${h-8}" rx="${w*0.4}" ry="3" fill="#d4c5a9"/>
+  `;
+
+  if (stage === 'seed') {
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      ${soil}
+      <path d="M${w/2} ${h-10} Q${w/2} ${h-22} ${w/2-4} ${h-26}" stroke="#3d9e5f" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="${w/2-5}" cy="${h-27}" rx="6" ry="3.5" fill="#5fc080" transform="rotate(-30 ${w/2-5} ${h-27})"/>
+      <ellipse cx="${w/2-4}" cy="${h-27}" rx="3.5" ry="2" fill="#3d9e5f" transform="rotate(-30 ${w/2-4} ${h-27})"/>
+    </svg>`;
+  }
+
+  if (stage === 'sprout') {
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      ${soil}
+      <path d="M${w/2} ${h-10} L${w/2} ${h-40}" stroke="#3d9e5f" stroke-width="2.4" stroke-linecap="round"/>
+      <ellipse cx="${w/2-9}" cy="${h-30}" rx="9" ry="4.5" fill="#5fc080" transform="rotate(-25 ${w/2-9} ${h-30})"/>
+      <ellipse cx="${w/2+9}" cy="${h-34}" rx="9" ry="4.5" fill="#5fc080" transform="rotate(25 ${w/2+9} ${h-34})"/>
+      <ellipse cx="${w/2-7}" cy="${h-30}" rx="5" ry="2.5" fill="#3d9e5f" transform="rotate(-25 ${w/2-7} ${h-30})"/>
+      <ellipse cx="${w/2+7}" cy="${h-34}" rx="5" ry="2.5" fill="#3d9e5f" transform="rotate(25 ${w/2+7} ${h-34})"/>
+      <circle cx="${w/2}" cy="${h-42}" r="3" fill="#5fc080"/>
+    </svg>`;
+  }
+
+  if (stage === 'bush') {
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      ${soil}
+      <rect x="${w/2-2.5}" y="${h-30}" width="5" height="22" rx="2" fill="#8b6f47"/>
+      <circle cx="${w/2-10}" cy="${h-32}" r="11" fill="#5fc080"/>
+      <circle cx="${w/2+10}" cy="${h-32}" r="11" fill="#5fc080"/>
+      <circle cx="${w/2}" cy="${h-42}" r="13" fill="#3d9e5f"/>
+      <circle cx="${w/2-7}" cy="${h-36}" r="3" fill="#5fc080" opacity="0.6"/>
+      <circle cx="${w/2+8}" cy="${h-44}" r="2.5" fill="#7dd197" opacity="0.7"/>
+    </svg>`;
+  }
+
+  if (stage === 'tree') {
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      ${soil}
+      <path d="M${w/2-3} ${h-10} L${w/2-3} ${h-40} L${w/2-12} ${h-50} M${w/2+3} ${h-10} L${w/2+3} ${h-40} L${w/2+12} ${h-48}" stroke="#8b6f47" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="${w/2}" cy="${h-50}" rx="20" ry="16" fill="#3d9e5f"/>
+      <circle cx="${w/2-12}" cy="${h-54}" r="9" fill="#5fc080"/>
+      <circle cx="${w/2+12}" cy="${h-52}" r="9" fill="#5fc080"/>
+      <circle cx="${w/2}" cy="${h-60}" r="10" fill="#5fc080"/>
+      <circle cx="${w/2-5}" cy="${h-58}" r="3" fill="#7dd197" opacity="0.6"/>
+      <circle cx="${w/2+8}" cy="${h-50}" r="2.5" fill="#2e7c47" opacity="0.5"/>
+    </svg>`;
+  }
+
+  // flower
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    ${soil}
+    <path d="M${w/2-3} ${h-10} L${w/2-3} ${h-40} L${w/2-12} ${h-50} M${w/2+3} ${h-10} L${w/2+3} ${h-40} L${w/2+12} ${h-48}" stroke="#8b6f47" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="${w/2}" cy="${h-52}" rx="22" ry="17" fill="#3d9e5f"/>
+    <circle cx="${w/2-13}" cy="${h-56}" r="9" fill="#5fc080"/>
+    <circle cx="${w/2+13}" cy="${h-54}" r="9" fill="#5fc080"/>
+    <circle cx="${w/2}" cy="${h-62}" r="10" fill="#5fc080"/>
+    <!-- Flowers -->
+    <g><circle cx="${w/2-10}" cy="${h-58}" r="3" fill="#fff"/><circle cx="${w/2-10}" cy="${h-58}" r="1.2" fill="#e8920a"/></g>
+    <g><circle cx="${w/2+8}" cy="${h-62}" r="3" fill="#fff"/><circle cx="${w/2+8}" cy="${h-62}" r="1.2" fill="#e8920a"/></g>
+    <g><circle cx="${w/2-3}" cy="${h-66}" r="3" fill="#fff"/><circle cx="${w/2-3}" cy="${h-66}" r="1.2" fill="#e8920a"/></g>
+    <g><circle cx="${w/2+13}" cy="${h-50}" r="2.5" fill="#fff"/><circle cx="${w/2+13}" cy="${h-50}" r="1" fill="#e8920a"/></g>
+    <g><circle cx="${w/2-15}" cy="${h-50}" r="2.5" fill="#fff"/><circle cx="${w/2-15}" cy="${h-50}" r="1" fill="#e8920a"/></g>
+  </svg>`;
+}
+
+/* ============================================
+   STREAK & STATS COMPUTATION
+   ============================================ */
+function totalDays(habit) {
+  return Object.values(habit.history).filter(v => v === 'done' || v === 'grace').length;
+}
+
+/**
+ * Vrai si l'activité était en pause sur la date donnée (dateKey YYYY-MM-DD).
+ * On consulte le journal de pauses : tableau d'intervalles { from, to|null }.
+ * `to: null` = pause toujours en cours.
+ */
+function isPausedOn(habit, dKey) {
+  if (!habit.pauseLog || !Array.isArray(habit.pauseLog)) return false;
+  for (const span of habit.pauseLog) {
+    if (!span || !span.from) continue;
+    const from = span.from;
+    const to = span.to; // peut être null/undef (pause en cours)
+    if (dKey >= from && (!to || dKey <= to)) return true;
+  }
+  return false;
+}
+
+function currentStreak(habit) {
+  // Walk backward from today.
+  // - 'done' / 'grace' → +1
+  // - jour en pause   → ignoré (n'incrémente pas, ne casse pas)
+  // - aujourd'hui non fait → on continue de remonter sans casser
+  // - sinon → break
+  let streak = 0;
+  const d = new Date();
+  for (let i = 0; i < 365; i++) {
+    const k = dateKey(d);
+    const v = habit.history[k];
+    if (v === 'done' || v === 'grace') {
+      streak++;
+    } else if (isPausedOn(habit, k)) {
+      // jour en pause : on saute, sans casser la chaîne
+    } else if (i === 0) {
+      // today not yet done — don't break, just continue past today
+    } else {
+      break;
+    }
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+function isDoneToday(habit) {
+  return habit.history[todayKey()] === 'done';
+}
+
+function weekDots(habit) {
+  // last 7 days including today, oldest first
+  const out = [];
+  const today = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const k = dateKey(d);
+    const v = habit.history[k];
+    let state;
+    if (v === 'done') state = 'done';
+    else if (v === 'grace') state = 'grace';
+    else if (isPausedOn(habit, k)) state = 'paused';
+    else state = 'miss';
+    out.push({
+      label: ['D','L','M','M','J','V','S'][d.getDay()],
+      state,
+      isToday: i === 0
+    });
+  }
+  return out;
+}
+
+function heatmap28(habit) {
+  // 28 derniers jours, du plus ancien au plus récent
+  const cells = [];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const created = new Date(habit.createdAt);
+  created.setHours(0,0,0,0);
+
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const k = dateKey(d);
+    const v = habit.history[k];
+    const beforeCreated = d < created;
+
+    let cls = 'miss';
+    if (v === 'done') cls = 'done';
+    else if (v === 'grace') cls = 'grace';
+    else if (isPausedOn(habit, k)) cls = 'paused';
+    if (beforeCreated) cls = 'future';
+
+    cells.push({
+      cls,
+      isToday: i === 0,
+      date: k,
+      // En pause : non éditable (logique : pas de sens de marquer un jour qui ne compte pas)
+      editable: !beforeCreated && cls !== 'paused'
+    });
+  }
+  return cells;
+}
+
+function monthCount(habit) {
+  const today = new Date();
+  let count = 0;
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    if (habit.history[dateKey(d)] === 'done') count++;
+  }
+  return count;
+}
+
+function rate(habit) {
+  // Taux = jours faits / jours actifs (en excluant les jours en pause)
+  const created = new Date(habit.createdAt);
+  created.setHours(0,0,0,0);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const totalSpan = Math.max(1, Math.floor((today - created) / 86400000) + 1);
+
+  // Compter les jours en pause dans la fenêtre [createdAt, today]
+  let pausedDays = 0;
+  if (habit.pauseLog) {
+    for (let i = 0; i < totalSpan; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      if (isPausedOn(habit, dateKey(d))) pausedDays++;
+    }
+  }
+  const activeDays = Math.max(1, totalSpan - pausedDays);
+  return Math.round((totalDays(habit) / activeDays) * 100);
+}
+
+/* ============================================
+   RENDER : HOME
+   ============================================ */
+function formatDate() {
+  const days = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const d = new Date();
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function greetingFor(done, total) {
+  if (total === 0) return 'Bonjour 👋';
+  if (done === 0) return 'Bonjour 👋';
+  if (done === total) return 'Bravo ! 🎉';
+  if (done >= total / 2) return 'Tu avances 🌿';
+  return 'On y va doucement 🌱';
+}
+
+function renderHome() {
+  document.getElementById('home-date').textContent = formatDate();
+
+  const habits = state.habits;
+  const activeOnly = habits.filter(h => !h.pausedAt);
+  const doneCount = activeOnly.filter(isDoneToday).length;
+  const total = activeOnly.length;
+
+  document.getElementById('home-greeting').textContent = greetingFor(doneCount, total);
+  document.getElementById('ring-text').textContent = `${doneCount}/${total}`;
+
+  // Ring
+  const ring = document.getElementById('ring-fg');
+  const C = 2 * Math.PI * 28;
+  ring.setAttribute('stroke-dasharray', C);
+  const offset = total === 0 ? C : C - (doneCount / total) * C;
+  ring.setAttribute('stroke-dashoffset', offset);
+
+  // Streak banner — only over active habits
+  const banner = document.getElementById('streak-banner');
+  const streaks = activeOnly.map(currentStreak);
+  const maxStreak = Math.max(0, ...streaks);
+  if (maxStreak >= 2) {
+    banner.style.display = 'flex';
+    document.getElementById('streak-title').textContent =
+      `${maxStreak} jour${maxStreak>1?'s':''} de suite`;
+    const subs = [
+      "Tu prends de l'élan, c'est précieux.",
+      "La régularité fait son œuvre.",
+      "Continue, à ton rythme.",
+      "Ton plus long élan en cours.",
+      "Garde ce souffle doux."
+    ];
+    document.getElementById('streak-sub').textContent = subs[Math.min(subs.length-1, Math.floor(maxStreak/3))];
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Celebrate card
+  const celebrateWrap = document.getElementById('celebrate-wrap');
+  if (total > 0 && doneCount === total) {
+    celebrateWrap.innerHTML = `
+      <div class="celebrate-card" onclick="goNav('garden')">
+        <div class="celebrate-card__icon">🌱</div>
+        <div class="celebrate-card__content">
+          <div class="celebrate-card__title">Journée complète !</div>
+          <div class="celebrate-card__sub">Va voir comme ton jardin pousse</div>
+        </div>
+        <div class="celebrate-card__arrow">→</div>
+      </div>`;
+  } else {
+    celebrateWrap.innerHTML = '';
+  }
+
+  // Habits list — split entre actives et en pause
+  const list = document.getElementById('habits-list');
+  const activeHabits = habits.filter(h => !h.pausedAt);
+  const pausedHabits = habits.filter(h => h.pausedAt);
+
+  if (total === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state__icon">🌱</div>
+        <div class="empty-state__title">Plante ta première graine</div>
+        <div class="empty-state__sub">Une seule activité, version minuscule. C'est tout ce qu'il faut pour commencer.</div>
+        <button class="empty-state__btn" onclick="openAdd()">Créer une activité</button>
+      </div>`;
+  } else {
+    // Activer le mode compact si beaucoup d'activités actives
+    const isCompact = activeHabits.length > FOCUS_HINT_THRESHOLD;
+    list.classList.toggle('habits-list--compact', isCompact);
+
+    let html = '';
+    if (activeHabits.length === 0 && pausedHabits.length > 0) {
+      // Cas : tout est en pause
+      html += `
+        <div class="empty-state">
+          <div class="empty-state__icon">🌙</div>
+          <div class="empty-state__title">Toutes tes activités sont en pause</div>
+          <div class="empty-state__sub">Reprends quand tu seras prêt·e — depuis le menu ⋯ d'une activité ci-dessous.</div>
+        </div>`;
+    } else {
+      html += activeHabits.map((h, i) => habitCardHTML(h, i, isCompact)).join('');
+    }
+    if (pausedHabits.length > 0) {
+      html += `
+        <div class="paused-divider">
+          <div class="paused-divider__line"></div>
+          <div class="paused-divider__label">En pause · ${pausedHabits.length}</div>
+          <div class="paused-divider__line"></div>
+        </div>`;
+      html += pausedHabits.map((h, i) => habitCardHTML(h, activeHabits.length + i, isCompact)).join('');
+    }
+    list.innerHTML = html;
+    // Wire check buttons
+    list.querySelectorAll('[data-toggle-habit]').forEach(btn => {
+      btn.addEventListener('click', () => toggleHabit(btn.dataset.toggleHabit));
+    });
+    // Wire menu buttons
+    list.querySelectorAll('[data-menu-habit]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openHabitSheet(btn.dataset.menuHabit);
+      });
+    });
+  }
+
+  // Grace
+  document.getElementById('grace-count').textContent = state.graceDaysSetting;
+  document.getElementById('grace-row').style.display = (total > 0 && activeHabits.length > 0) ? 'flex' : 'none';
+}
+
+function habitCardHTML(h, idx, compact = false) {
+  const paused = !!h.pausedAt;
+  const done = !paused && isDoneToday(h);
+  const stage = plantStage(totalDays(h));
+  const dots = weekDots(h);
+  const delay = (idx * 60) + 'ms';
+  const plantSize = compact ? 40 : 56;
+
+  // En pause : on n'affiche pas le bouton check (on ne valide pas un jour en pause)
+  // mais on garde le menu pour reprendre / éditer / supprimer.
+  const checkOrSpacer = paused
+    ? `<div class="check-btn" aria-hidden="true" style="visibility:hidden"></div>`
+    : `<button class="check-btn" data-toggle-habit="${h.id}" aria-label="Valider ${escapeHTML(h.name)}">
+         <div class="check-circle">
+           <svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg>
+         </div>
+       </button>`;
+
+  const pausedNote = paused
+    ? `<div class="pause-note">⏸ En pause — les jours ne comptent pas comme manqués.</div>`
+    : '';
+
+  const nameSuffix = paused
+    ? `<span class="pause-badge">Pause</span>`
+    : '';
+
+  return `
+    <div class="habit-card ${done ? 'done' : ''} ${paused ? 'paused' : ''}" style="animation-delay:${delay}">
+      <button class="habit-menu-btn" data-menu-habit="${h.id}" aria-label="Options pour ${escapeHTML(h.name)}">
+        <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+      </button>
+      <div class="habit-plant habit-plant--${stage}">${plantSVG(stage, plantSize)}</div>
+      <div class="habit-body">
+        <div class="habit-name">${escapeHTML(h.name)}${nameSuffix}</div>
+        <div class="habit-anchor">${h.anchor.icon} ${escapeHTML(h.anchor.label)}</div>
+        <div class="week-strip">
+          ${dots.map(d => `<div class="week-dot ${d.state} ${d.isToday?'today':''}">${d.label}</div>`).join('')}
+        </div>
+        ${done ? `<div class="feel-message">${h.feeling.icon} ${escapeHTML(h.feeling.label)}</div>` : ''}
+        ${pausedNote}
+      </div>
+      ${checkOrSpacer}
+    </div>`;
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ============================================
+   ACTIONS : HOME
+   ============================================ */
+function toggleHabit(id) {
+  const h = state.habits.find(x => x.id === id);
+  if (!h) return;
+  const k = todayKey();
+  const wasDone = h.history[k] === 'done';
+  if (wasDone) {
+    delete h.history[k];
+  } else {
+    h.history[k] = 'done';
+    // burst on the corresponding card
+    requestAnimationFrame(() => burstAt(id));
+  }
+  saveState();
+  renderHome();
+}
+
+function burstAt(id) {
+  const card = document.querySelector(`[data-toggle-habit="${id}"]`)?.closest('.habit-card');
+  if (!card) return;
+  const burst = document.createElement('div');
+  burst.className = 'confetti-burst';
+  const colors = ['#3d9e5f','#5fc080','#e8920a','#3a7bd5','#b8e4c8'];
+  // place burst aligned with check button
+  const btn = card.querySelector('.check-btn');
+  const cardRect = card.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  burst.style.left = (btnRect.left - cardRect.left + btnRect.width/2) + 'px';
+  burst.style.top = (btnRect.top - cardRect.top + btnRect.height/2) + 'px';
+  burst.style.width = '0';
+  burst.style.height = '0';
+  for (let i = 0; i < 12; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.background = colors[i % colors.length];
+    piece.style.setProperty('--r', (i * 30) + 'deg');
+    piece.style.animationDelay = (i * 12) + 'ms';
+    burst.appendChild(piece);
+  }
+  card.appendChild(burst);
+  setTimeout(() => burst.remove(), 900);
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+function goNav(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelector(`#screen-${name}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.nav === name));
+  document.getElementById('app').classList.toggle('nav-hidden', name === 'add');
+
+  if (name === 'home') renderHome();
+  if (name === 'garden') renderGarden();
+  if (name === 'reminders') renderReminders();
+  if (name === 'profile') renderProfile();
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => goNav(item.dataset.nav));
+});
+
+/* ============================================
+   ADD HABIT FLOW
+   ============================================ */
+function openAdd() {
+  state.draft = { name: '', anchor: null, micro: '', feeling: null };
+  state.step = 1;
+  renderAdd();
+  goNav('add');
+}
+
+function countActiveHabits() {
+  return state.habits.filter(h => !h.pausedAt).length;
+}
+
+// Seuil au-delà duquel on suggère doucement de mettre en pause plutôt que d'ajouter
+const FOCUS_HINT_THRESHOLD = 5;
+
+function closeAdd() {
+  goNav('home');
+}
+
+function renderAdd() {
+  // Steps
+  document.querySelectorAll('.step').forEach(s => {
+    s.classList.toggle('active', Number(s.dataset.step) === state.step);
+  });
+  // Dots
+  document.querySelectorAll('.step-dot').forEach(d => {
+    const n = Number(d.dataset.dot);
+    d.classList.toggle('active', n === state.step);
+    d.classList.toggle('done', n < state.step);
+  });
+  // Progress bar
+  document.getElementById('add-progress').style.width = (state.step * 25) + '%';
+  // Back btn
+  document.getElementById('add-back-btn').style.visibility = state.step > 1 ? 'visible' : 'hidden';
+
+  // Render step content
+  if (state.step === 1) renderStep1();
+  if (state.step === 2) renderStep2();
+  if (state.step === 3) renderStep3();
+  if (state.step === 4) renderStep4();
+}
+
+function renderStep1() {
+  const activeCount = countActiveHabits();
+  const banner = document.getElementById('blocked-banner');
+  const bannerText = document.getElementById('blocked-banner-text');
+  if (activeCount >= FOCUS_HINT_THRESHOLD) {
+    banner.style.display = 'flex';
+    bannerText.textContent = `Tu as ${activeCount} activités actives. Tu peux en ajouter, ou en mettre une en pause depuis le menu ⋯ pour garder ton focus.`;
+  } else {
+    banner.style.display = 'none';
+  }
+  document.getElementById('input-name').value = state.draft.name;
+  document.getElementById('step1-next').disabled = !state.draft.name.trim();
+  // Update chips
+  document.querySelectorAll('#name-chips .chip').forEach(c => {
+    c.classList.toggle('selected', c.dataset.name === state.draft.name);
+  });
+}
+
+function renderStep2() {
+  const list = document.getElementById('anchor-list');
+  list.innerHTML = ANCHORS.map((a, i) => `
+    <button class="option-item ${state.draft.anchor?.label === a.label ? 'selected' : ''}"
+      data-anchor="${i}" style="animation-delay:${i*40}ms">
+      <span class="option-item__icon">${a.icon}</span>
+      <span>${a.label}</span>
+    </button>
+  `).join('');
+  list.querySelectorAll('[data-anchor]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.draft.anchor = ANCHORS[Number(btn.dataset.anchor)];
+      renderStep2();
+      document.getElementById('step2-next').disabled = false;
+    });
+  });
+  document.getElementById('step2-next').disabled = !state.draft.anchor;
+}
+
+function renderStep3() {
+  const habit = state.draft.name || 'cette activité';
+  const input = document.getElementById('input-micro');
+  if (!state.draft.micro) state.draft.micro = habit;
+  input.value = state.draft.micro;
+
+  const isDifferent = state.draft.micro.trim() && state.draft.micro.trim() !== habit.trim();
+  input.classList.toggle('valid', isDifferent);
+
+  const chips = document.getElementById('micro-chips');
+  const suggestions = [`${habit} 2 min`, '1 fois', 'Juste commencer'];
+  chips.innerHTML = suggestions.map((s, i) => `
+    <button class="chip ${state.draft.micro === s ? 'selected' : ''}" data-micro="${escapeHTML(s)}" style="animation-delay:${i*60}ms">${escapeHTML(s)}</button>
+  `).join('');
+  chips.querySelectorAll('[data-micro]').forEach(c => {
+    c.addEventListener('click', () => {
+      state.draft.micro = c.dataset.micro;
+      renderStep3();
+    });
+  });
+
+  document.getElementById('step3-next').disabled = !state.draft.micro.trim();
+}
+
+function renderStep4() {
+  const list = document.getElementById('feeling-list');
+  list.innerHTML = FEELINGS.map((f, i) => `
+    <button class="option-item ${state.draft.feeling?.label === f.label ? 'selected' : ''}"
+      data-feeling="${i}" style="animation-delay:${i*40}ms">
+      <span class="option-item__icon">${f.icon}</span>
+      <span>${f.label}</span>
+    </button>
+  `).join('');
+  list.querySelectorAll('[data-feeling]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.draft.feeling = FEELINGS[Number(btn.dataset.feeling)];
+      renderStep4();
+    });
+  });
+
+  // Recap
+  const wrap = document.getElementById('recap-wrap');
+  const d = state.draft;
+  if (d.name && d.anchor && d.micro && d.feeling) {
+    wrap.innerHTML = `
+      <div class="recap">
+        <div class="recap__title">Ta nouvelle activité</div>
+        <div class="recap__row">
+          <div class="recap__icon">${d.anchor.icon}</div>
+          <div class="recap__content">
+            <div class="recap__label">Quand</div>
+            <div class="recap__value">${escapeHTML(d.anchor.label)}</div>
+          </div>
+        </div>
+        <div class="recap__row">
+          <div class="recap__icon">🌱</div>
+          <div class="recap__content">
+            <div class="recap__label">Quoi</div>
+            <div class="recap__value">${escapeHTML(d.micro)}</div>
+          </div>
+        </div>
+        <div class="recap__row">
+          <div class="recap__icon">${d.feeling.icon}</div>
+          <div class="recap__content">
+            <div class="recap__label">Pour me sentir</div>
+            <div class="recap__value">${escapeHTML(d.feeling.label)}</div>
+          </div>
+        </div>
+      </div>`;
+  } else {
+    wrap.innerHTML = '';
+  }
+
+  document.getElementById('step4-finish').disabled = !d.feeling;
+}
+
+function goStep(n) {
+  state.step = n;
+  renderAdd();
+}
+function addBack() {
+  if (state.step > 1) {
+    state.step--;
+    renderAdd();
+  }
+}
+
+function finishAdd() {
+  const d = state.draft;
+  const h = {
+    id: 'h' + Date.now(),
+    name: d.name.trim(),
+    anchor: d.anchor,
+    micro: d.micro.trim(),
+    feeling: d.feeling,
+    createdAt: todayKey(),
+    history: {},
+    pausedAt: null,
+    pauseLog: []
+  };
+  state.habits.push(h);
+  if (!state.selectedHabitId) state.selectedHabitId = h.id;
+  saveState();
+  showToast('Nouvelle graine plantée 🌱');
+  goNav('home');
+}
+
+// Step 1 wiring
+document.getElementById('input-name').addEventListener('input', (e) => {
+  state.draft.name = e.target.value;
+  document.getElementById('step1-next').disabled = !e.target.value.trim();
+  document.querySelectorAll('#name-chips .chip').forEach(c => {
+    c.classList.toggle('selected', c.dataset.name === state.draft.name);
+  });
+});
+document.querySelectorAll('#name-chips .chip').forEach(c => {
+  c.addEventListener('click', () => {
+    state.draft.name = c.dataset.name;
+    renderStep1();
+  });
+});
+
+// Step 3 wiring
+document.getElementById('input-micro').addEventListener('input', (e) => {
+  state.draft.micro = e.target.value;
+  renderStep3();
+});
+
+/* ============================================
+   GARDEN
+   ============================================ */
+function renderGarden() {
+  const habits = state.habits;
+  const total = habits.reduce((s, h) => s + totalDays(h), 0);
+  document.getElementById('garden-total-num').textContent = total;
+
+  if (!state.selectedHabitId && habits.length) state.selectedHabitId = habits[0].id;
+
+  // Stage plants
+  const stage = document.getElementById('garden-stage');
+  if (habits.length === 0) {
+    stage.innerHTML = `<div style="color:var(--muted);font-size:13px;font-weight:700;">Aucune plante encore</div>`;
+  } else {
+    stage.innerHTML = habits.map(h => {
+      const st = plantStage(totalDays(h));
+      const sel = state.selectedHabitId === h.id;
+      return `<div class="garden-plant garden-plant--${st} ${sel?'selected':'dim'}" data-pick="${h.id}">${plantSVG(st, 70)}</div>`;
+    }).join('');
+    stage.querySelectorAll('[data-pick]').forEach(p => {
+      p.addEventListener('click', () => {
+        state.selectedHabitId = p.dataset.pick;
+        saveState();
+        renderGarden();
+      });
+    });
+  }
+
+  // Cards
+  const cards = document.getElementById('garden-cards');
+  if (habits.length === 0) {
+    cards.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state__icon">🌱</div>
+        <div class="empty-state__title">Pas encore de plantes</div>
+        <div class="empty-state__sub">Crée ta première activité pour faire pousser ton jardin.</div>
+        <button class="empty-state__btn" onclick="openAdd()">Commencer</button>
+      </div>`;
+  } else {
+    cards.innerHTML = habits.map(h => {
+      const days = totalDays(h);
+      const st = plantStage(days);
+      // Progress to next stage
+      const stages = [0, 7, 21, 60, 120, 365];
+      const currentIdx = stages.findIndex(s => days < s);
+      const lower = currentIdx > 0 ? stages[currentIdx - 1] : 0;
+      const upper = currentIdx > 0 ? stages[currentIdx] : 365;
+      const pct = Math.min(100, ((days - lower) / (upper - lower)) * 100);
+      const sel = state.selectedHabitId === h.id;
+      return `
+        <div class="garden-card ${sel?'selected':''}" data-pick="${h.id}">
+          <div class="garden-card__name">${escapeHTML(h.name)}</div>
+          <div class="garden-card__bar"><div class="garden-card__bar-fill" style="width:${pct}%"></div></div>
+          <div class="garden-card__days">${days}j</div>
+        </div>`;
+    }).join('');
+    cards.querySelectorAll('[data-pick]').forEach(p => {
+      p.addEventListener('click', () => {
+        state.selectedHabitId = p.dataset.pick;
+        saveState();
+        renderGarden();
+      });
+    });
+  }
+
+  // Detail
+  const detail = document.getElementById('garden-detail-wrap');
+  const sel = habits.find(h => h.id === state.selectedHabitId);
+  if (!sel) {
+    detail.innerHTML = '';
+    return;
+  }
+  const cells = heatmap28(sel);
+  const streak = currentStreak(sel);
+  const month = monthCount(sel);
+  const r = rate(sel);
+  const quote = ENCOURAGE_QUOTES[Math.abs(hashCode(sel.id)) % ENCOURAGE_QUOTES.length];
+
+  detail.innerHTML = `
+    <div class="garden-detail">
+      <div class="garden-detail__title">28 derniers jours · ${escapeHTML(sel.name)}</div>
+      <div class="heatmap" id="heatmap-grid">
+        ${cells.map(c => `<div class="heatmap__cell ${c.cls} ${c.isToday?'today':''} ${c.editable?'editable':''}" data-habit-id="${sel.id}" data-date="${c.date}"></div>`).join('')}
+      </div>
+      <div class="heatmap-hint">
+        <span class="heatmap-hint__icon">👆</span>
+        <span>Touche un jour pour cycler : fait → rattrapage → rien</span>
+      </div>
+      <div class="heatmap-legend">
+        <div class="heatmap-legend__item"><div class="heatmap-legend__dot" style="background:var(--green)"></div>Fait</div>
+        <div class="heatmap-legend__item"><div class="heatmap-legend__dot" style="background:var(--green-border)"></div>Rattrapage</div>
+        <div class="heatmap-legend__item"><div class="heatmap-legend__dot" style="background:var(--border)"></div>Raté</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card__value">${streak}</div>
+          <div class="stat-card__label">Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">${month}</div>
+          <div class="stat-card__label">Ce mois</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">${r}%</div>
+          <div class="stat-card__label">Taux</div>
+        </div>
+      </div>
+      <div class="quote-block">"${quote}"</div>
+    </div>
+  `;
+
+  // Cellules éditables : tap = cycle d'état (parcours de secours)
+  detail.querySelectorAll('.heatmap__cell.editable').forEach(cell => {
+    cell.addEventListener('click', () => cycleHeatmapCell(cell));
+  });
+}
+
+function hashCode(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+/* ============================================
+   REMINDERS
+   ============================================ */
+function renderReminders() {
+  // Tone
+  document.querySelectorAll('.tone-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tone === state.tone);
+  });
+  // Toggles
+  document.querySelectorAll('.toggle').forEach(t => {
+    t.classList.toggle('on', !!state.toggles[t.dataset.toggle]);
+  });
+  updatePreview();
+}
+
+function updatePreview() {
+  const t = TONE_PREVIEWS[state.tone];
+  const habit = state.habits[0]?.micro?.toLowerCase() || 'méditer 2 min';
+  document.getElementById('preview-title').textContent = t.title.replace('{habit}', habit);
+  document.getElementById('preview-msg').textContent = t.msg.replace(/{habit}/g, habit);
+}
+
+document.querySelectorAll('.tone-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    state.tone = b.dataset.tone;
+    saveState();
+    renderReminders();
+  });
+});
+
+function toggleSwitch(el) {
+  const k = el.dataset.toggle;
+  state.toggles[k] = !state.toggles[k];
+  el.classList.toggle('on', state.toggles[k]);
+  saveState();
+}
+
+/* ============================================
+   PROFILE
+   ============================================ */
+function renderProfile() {
+  // Days since first habit
+  let firstDate = null;
+  state.habits.forEach(h => {
+    const d = new Date(h.createdAt);
+    if (!firstDate || d < firstDate) firstDate = d;
+  });
+  const daysEl = document.getElementById('days-since');
+  if (firstDate) {
+    const diff = Math.floor((new Date() - firstDate) / 86400000);
+    daysEl.textContent = `${diff} jour${diff>1?'s':''}`;
+  } else {
+    daysEl.textContent = "le début";
+  }
+
+  // Week score — exclut les jours où l'activité était en pause
+  const today = new Date();
+  let possible = 0, done = 0;
+  state.habits.forEach(h => {
+    const created = new Date(h.createdAt);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      if (d < created) continue;
+      const k = dateKey(d);
+      if (isPausedOn(h, k)) continue; // pause = neutre, ne compte ni au num ni au dénom
+      possible++;
+      if (h.history[k] === 'done') done++;
+    }
+  });
+  const score = possible === 0 ? 0 : Math.round((done / possible) * 100);
+  document.getElementById('week-score').textContent = score + '%';
+  document.getElementById('week-bar').style.width = score + '%';
+  let sub = "Chaque pas compte.";
+  if (score >= 80) sub = "Tu prends soin de toi, ça se voit.";
+  else if (score >= 50) sub = "Tu tiens bon, doucement mais sûrement.";
+  else if (score > 0) sub = "Le redémarrage compte autant que le rythme.";
+  document.getElementById('week-sub').textContent = sub;
+
+  // Gallery
+  const gallery = document.getElementById('gallery-row');
+  if (state.habits.length === 0) {
+    gallery.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--muted);padding:0;">Aucune plante pour l'instant</div>`;
+  } else {
+    gallery.innerHTML = state.habits.map(h => {
+      const days = totalDays(h);
+      const st = plantStage(days);
+      return `
+        <div class="gallery-card">
+          <div class="gallery-card__plant">${plantSVG(st, 50)}</div>
+          <div class="gallery-card__name">${escapeHTML(h.name)}</div>
+          <div class="gallery-card__days">${days} j</div>
+        </div>`;
+    }).join('');
+  }
+
+  // Grace
+  document.getElementById('grace-stepper').textContent = state.graceDaysSetting;
+
+  // Active count
+  const activeCount = countActiveHabits();
+  const pausedCount = state.habits.length - activeCount;
+  const countEl = document.getElementById('active-count-value');
+  if (countEl) {
+    countEl.textContent = pausedCount > 0 ? `${activeCount} (+${pausedCount})` : `${activeCount}`;
+  }
+
+  // Manual entry form + backup meta (parcours de secours)
+  renderManualForm();
+  renderBackupMeta();
+}
+
+function changeGrace(delta) {
+  state.graceDaysSetting = Math.max(0, Math.min(5, state.graceDaysSetting + delta));
+  saveState();
+  document.getElementById('grace-stepper').textContent = state.graceDaysSetting;
+}
+
+function resetData() {
+  if (!confirm("Effacer toutes tes données et toutes les sauvegardes ? Cette action est irréversible.\n\nPense à exporter d'abord depuis « Sauvegarde » si tu veux garder une trace.")) return;
+  Storage.reset();
+  state = {
+    habits: [],
+    graceDaysSetting: 2,
+    selectedHabitId: null,
+    tone: 'doux',
+    toggles: { evening: true, 'soft-alert': false, 'per-habit': true },
+    draft: { name: '', anchor: null, micro: '', feeling: null },
+    step: 1
+  };
+  manualEntry = { habitId: null, date: '', status: null };
+  goNav('home');
+  showToast('Nouveau départ 🌱');
+}
+
+/* ============================================
+   TOAST
+   ============================================ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ============================================
+   SAVE INDICATOR — feedback discret de persistance
+   ============================================ */
+let saveIndicatorTimer;
+function showSaveIndicator() {
+  let el = document.getElementById('save-indicator');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'save-indicator';
+    el.className = 'save-indicator';
+    el.innerHTML = '<div class="save-indicator__dot"></div>Sauvegardé';
+    document.body.appendChild(el);
+  }
+  el.classList.add('show');
+  clearTimeout(saveIndicatorTimer);
+  saveIndicatorTimer = setTimeout(() => el.classList.remove('show'), 1100);
+}
+
+/* ============================================
+   PARCOURS DE SECOURS — saisie manuelle
+   - Cycle d'état sur la heatmap (fait → rattrapage → rien)
+   - Formulaire dédié dans le profil
+   - Le résultat produit la même donnée que le parcours naturel
+   ============================================ */
+
+// Cycle d'état sur une cellule de heatmap : fait → rattrapage → rien → fait
+function cycleHeatmapCell(cell) {
+  const habitId = cell.dataset.habitId;
+  const date = cell.dataset.date;
+  const habit = state.habits.find(x => x.id === habitId);
+  if (!habit) return;
+
+  const cur = habit.history[date];
+  if (cur === 'done') {
+    habit.history[date] = 'grace';
+  } else if (cur === 'grace') {
+    delete habit.history[date];
+  } else {
+    habit.history[date] = 'done';
+  }
+  saveState();
+  renderGarden();
+}
+
+// État local du formulaire de saisie manuelle
+let manualEntry = { habitId: null, date: '', status: null };
+
+function renderManualForm() {
+  const chipsEl = document.getElementById('manual-habit-chips');
+  if (!chipsEl) return;
+
+  const habits = state.habits;
+
+  // Si l'habitude sélectionnée n'existe plus, reset
+  if (manualEntry.habitId && !habits.find(h => h.id === manualEntry.habitId)) {
+    manualEntry.habitId = null;
+  }
+
+  if (habits.length === 0) {
+    chipsEl.innerHTML = `<span style="font-size:12px;font-weight:700;color:var(--muted);">Crée une activité pour activer la saisie manuelle</span>`;
+  } else {
+    chipsEl.innerHTML = habits.map(h => `
+      <button class="chip ${manualEntry.habitId === h.id ? 'selected' : ''}" data-mh="${h.id}">${escapeHTML(h.name)}</button>
+    `).join('');
+    chipsEl.querySelectorAll('[data-mh]').forEach(c => {
+      c.addEventListener('click', () => {
+        manualEntry.habitId = c.dataset.mh;
+        renderManualForm();
+      });
+    });
+  }
+
+  const dateInput = document.getElementById('manual-date');
+  if (dateInput) {
+    dateInput.max = todayKey();
+    if (!manualEntry.date) {
+      // Par défaut : hier (cas d'usage le plus fréquent du rattrapage)
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      manualEntry.date = dateKey(y);
+    }
+    dateInput.value = manualEntry.date;
+  }
+
+  document.querySelectorAll('.status-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.status === manualEntry.status);
+  });
+
+  const applyBtn = document.getElementById('manual-apply');
+  if (applyBtn) {
+    applyBtn.disabled = !(manualEntry.habitId && manualEntry.date && manualEntry.status);
+  }
+}
+
+// Délégation pour les boutons de statut et l'input date du formulaire manuel
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.status-btn');
+  if (btn && btn.closest('.manual-form')) {
+    manualEntry.status = btn.dataset.status;
+    renderManualForm();
+  }
+});
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'manual-date') {
+    manualEntry.date = e.target.value;
+    renderManualForm();
+  }
+});
+
+function applyManualEntry() {
+  const h = state.habits.find(x => x.id === manualEntry.habitId);
+  if (!h || !manualEntry.date || !manualEntry.status) return;
+
+  // Garde-fou : on n'autorise pas à inscrire une donnée dans le futur ou avant la création
+  const d = new Date(manualEntry.date);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const created = new Date(h.createdAt); created.setHours(0,0,0,0);
+  if (d > today) {
+    showToast("Impossible d'inscrire un jour futur");
+    return;
+  }
+  if (d < created) {
+    showToast("Cette date précède la création de l'activité");
+    return;
+  }
+
+  if (manualEntry.status === 'none') {
+    delete h.history[manualEntry.date];
+  } else {
+    h.history[manualEntry.date] = manualEntry.status;
+  }
+
+  saveState();
+  showToast('Enregistré ✓');
+
+  // Reset partiel : on garde l'habitude sélectionnée pour itérer rapidement,
+  // on remet à zéro la date (par défaut : la veille) et le statut.
+  manualEntry.status = null;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  manualEntry.date = dateKey(y);
+  renderManualForm();
+}
+
+/* ============================================
+   EXPORT / IMPORT — sauvegarde transportable
+   ============================================ */
+function exportData() {
+  const json = Storage.export();
+  if (!json) {
+    showToast('Aucune donnée à exporter');
+    return;
+  }
+  try {
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `habit-tracker-${todayKey()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    showToast('Export téléchargé 📤');
+  } catch (e) {
+    showToast('Export impossible — ' + (e.message || 'erreur'));
+  }
+}
+
+function openImport() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.style.display = 'none';
+  input.onchange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const proceed = confirm("Importer ce fichier ? Tes données actuelles seront remplacées.\n\nUne sauvegarde de ton état actuel reste disponible automatiquement.");
+      if (!proceed) return;
+      const result = Storage.import(reader.result);
+      if (result.ok) {
+        loadState();
+        renderHome();
+        if (document.getElementById('screen-profile').classList.contains('active')) renderProfile();
+        if (document.getElementById('screen-garden').classList.contains('active')) renderGarden();
+        showToast('Import réussi 🌱');
+      } else {
+        showToast('Import échoué — ' + result.error);
+      }
+    };
+    reader.onerror = () => showToast('Lecture du fichier impossible');
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input);
+  input.click();
+  setTimeout(() => document.body.removeChild(input), 1000);
+}
+
+function renderBackupMeta() {
+  const txt = document.getElementById('backup-meta-text');
+  if (!txt) return;
+  const last = Storage.lastSavedAt();
+  if (!last) {
+    txt.textContent = 'Sauvegarde locale active';
+    return;
+  }
+  const diff = Date.now() - last;
+  const mins = Math.floor(diff / 60000);
+  let when;
+  if (mins < 1) when = "à l'instant";
+  else if (mins < 60) when = `il y a ${mins} min`;
+  else if (mins < 1440) when = `il y a ${Math.floor(mins/60)} h`;
+  else when = `il y a ${Math.floor(mins/1440)} j`;
+  txt.textContent = `Dernière sauvegarde ${when}`;
+}
+
+/* ============================================
+   PAUSE — interrompre sans casser l'élan
+   - Une activité en pause n'apparaît plus dans la liste principale
+     (descend dans une section "En pause"), n'est plus validable, et les jours
+     pendant la pause ne pénalisent ni le streak ni le taux.
+   - On garde un journal de pauses {from, to} pour stats correctes même après reprise.
+   ============================================ */
+
+function pauseHabit(habitId) {
+  const h = state.habits.find(x => x.id === habitId);
+  if (!h || h.pausedAt) return;
+  const today = todayKey();
+  h.pausedAt = today;
+  if (!Array.isArray(h.pauseLog)) h.pauseLog = [];
+  h.pauseLog.push({ from: today, to: null });
+  saveState();
+  showToast('Mise en pause 🌙 — on reprendra quand tu seras prêt·e');
+  renderHome();
+}
+
+function resumeHabit(habitId) {
+  const h = state.habits.find(x => x.id === habitId);
+  if (!h || !h.pausedAt) return;
+  const yesterday = (() => {
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    return dateKey(y);
+  })();
+  const today = todayKey();
+  // Clore l'intervalle de pause ouvert (la pause s'arrête hier)
+  if (Array.isArray(h.pauseLog)) {
+    const open = h.pauseLog.find(s => !s.to);
+    if (open) {
+      // Si la pause a démarré aujourd'hui, on la supprime (elle n'a pas duré)
+      if (open.from === today) {
+        h.pauseLog = h.pauseLog.filter(s => s !== open);
+      } else {
+        open.to = yesterday;
+      }
+    }
+  }
+  h.pausedAt = null;
+  saveState();
+  showToast('De retour 🌱 — bienvenue');
+  renderHome();
+}
+
+function deleteHabit(habitId) {
+  const h = state.habits.find(x => x.id === habitId);
+  if (!h) return;
+  if (!confirm(`Supprimer « ${h.name} » ?\n\nTout l'historique sera effacé. Pour mettre en attente sans perdre, utilise « Mettre en pause » à la place.`)) return;
+  state.habits = state.habits.filter(x => x.id !== habitId);
+  if (state.selectedHabitId === habitId) {
+    state.selectedHabitId = state.habits[0]?.id || null;
+  }
+  saveState();
+  closeSheet();
+  showToast('Activité retirée');
+  renderHome();
+}
+
+/* ============================================
+   ACTION SHEET — menu contextuel par carte
+   ============================================ */
+let activeSheetHabitId = null;
+
+function openHabitSheet(habitId) {
+  const h = state.habits.find(x => x.id === habitId);
+  if (!h) return;
+  activeSheetHabitId = habitId;
+
+  const titleEl = document.getElementById('sheet-title');
+  const subEl = document.getElementById('sheet-subtitle');
+  const actionsEl = document.getElementById('sheet-actions');
+
+  titleEl.textContent = h.name;
+  subEl.textContent = `${h.anchor.icon} ${h.anchor.label}`;
+
+  const paused = !!h.pausedAt;
+  const doneToday = isDoneToday(h);
+
+  let actions = '';
+
+  if (paused) {
+    actions += `
+      <button class="action-row action-row--accent" onclick="resumeHabit('${h.id}'); closeSheet();">
+        <div class="action-row__icon">🌱</div>
+        <div class="action-row__content">
+          <div class="action-row__title">Reprendre</div>
+          <div class="action-row__sub">L'activité revient parmi les actives</div>
+        </div>
+      </button>`;
+  } else {
+    if (doneToday) {
+      actions += `
+        <button class="action-row" onclick="toggleHabit('${h.id}'); closeSheet();">
+          <div class="action-row__icon">↺</div>
+          <div class="action-row__content">
+            <div class="action-row__title">Annuler la validation du jour</div>
+            <div class="action-row__sub">Si tu as coché par erreur</div>
+          </div>
+        </button>`;
+    } else {
+      actions += `
+        <button class="action-row action-row--accent" onclick="toggleHabit('${h.id}'); closeSheet();">
+          <div class="action-row__icon">✓</div>
+          <div class="action-row__content">
+            <div class="action-row__title">Valider aujourd'hui</div>
+            <div class="action-row__sub">Marquer cette journée comme faite</div>
+          </div>
+        </button>`;
+    }
+    actions += `
+      <button class="action-row action-row--rest" onclick="pauseHabit('${h.id}'); closeSheet();">
+        <div class="action-row__icon">⏸</div>
+        <div class="action-row__content">
+          <div class="action-row__title">Mettre en pause</div>
+          <div class="action-row__sub">Les jours en pause ne comptent pas comme manqués</div>
+        </div>
+      </button>`;
+  }
+
+  actions += `
+    <button class="action-row action-row--danger" onclick="deleteHabit('${h.id}');">
+      <div class="action-row__icon">🗑</div>
+      <div class="action-row__content">
+        <div class="action-row__title">Supprimer</div>
+        <div class="action-row__sub">Effacer l'activité et son historique</div>
+      </div>
+    </button>`;
+
+  actionsEl.innerHTML = actions;
+
+  document.getElementById('sheet-backdrop').classList.add('show');
+  document.getElementById('action-sheet').classList.add('show');
+}
+
+function closeSheet() {
+  activeSheetHabitId = null;
+  document.getElementById('sheet-backdrop').classList.remove('show');
+  document.getElementById('action-sheet').classList.remove('show');
+}
+
+// Fermer le sheet sur Echap
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSheet();
+});
+
+/* ============================================
+   WELCOME SCREEN — onboarding 3 slides
+   ============================================ */
+const WELCOME_SEEN_KEY = 'habit_tracker_welcome_seen_v1';
+let welcomeSlide = 1;
+const WELCOME_TOTAL = 3;
+
+function shouldShowWelcome() {
+  // On affiche le welcome si jamais vu, OU si l'utilisateur n'a aucune donnée
+  // (premier vrai démarrage). Le flag est posé après le premier "Commencer".
+  try {
+    return !localStorage.getItem(WELCOME_SEEN_KEY);
+  } catch (e) {
+    return false;
+  }
+}
+
+function openWelcome() {
+  // Injecter la plante hero (stade fleuri pour l'onboarding)
+  const heroEl = document.getElementById('welcome-hero-plant');
+  if (heroEl && !heroEl.innerHTML.trim()) {
+    heroEl.innerHTML = plantSVG('flower', 200);
+  }
+  welcomeSlide = 1;
+  syncWelcomeSlide();
+  document.getElementById('welcome-screen').classList.add('active');
+}
+
+function closeWelcome() {
+  try { localStorage.setItem(WELCOME_SEEN_KEY, '1'); } catch (e) {}
+  document.getElementById('welcome-screen').classList.remove('active');
+}
+
+function welcomeNext() {
+  if (welcomeSlide < WELCOME_TOTAL) {
+    welcomeSlide++;
+    syncWelcomeSlide(true);
+  } else {
+    closeWelcome();
+  }
+}
+
+function syncWelcomeSlide(scroll = false) {
+  // Update dots
+  document.querySelectorAll('.welcome-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === welcomeSlide - 1);
+  });
+  // Update CTA label
+  const cta = document.getElementById('welcome-cta');
+  if (cta) cta.textContent = (welcomeSlide === WELCOME_TOTAL) ? 'Commencer' : 'Continuer';
+  // Scroll to slide
+  if (scroll) {
+    const track = document.getElementById('welcome-track');
+    const slide = track?.children[welcomeSlide - 1];
+    if (slide && track) track.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+  }
+}
+
+// Sync les dots quand l'utilisateur swipe manuellement
+document.addEventListener('scroll', (e) => {
+  if (e.target.id === 'welcome-track') {
+    const track = e.target;
+    const idx = Math.round(track.scrollLeft / track.clientWidth);
+    if (idx + 1 !== welcomeSlide) {
+      welcomeSlide = Math.max(1, Math.min(WELCOME_TOTAL, idx + 1));
+      syncWelcomeSlide(false);
+    }
+  }
+}, true);
+
+/* ============================================
+   INIT
+   ============================================ */
+loadState();
+renderHome();
+
+if (shouldShowWelcome()) {
+  openWelcome();
+}
+
+// Prevent double-tap zoom
+let lastTouch = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTouch <= 300) e.preventDefault();
+  lastTouch = now;
+}, { passive: false });
+</script>
+</body>
+</html>
