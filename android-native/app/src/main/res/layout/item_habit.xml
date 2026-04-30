@@ -1,0 +1,44 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginTop="8dp"
+    android:background="#FFFFFF"
+    android:elevation="1dp"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <CheckBox
+        android:id="@+id/checkDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Habitude"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/anchorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="☕ Après mon café"
+        android:textColor="#8A8A8A"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/microText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Micro: Lire 2 minutes"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/feelText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Je me sens plus calme"
+        android:textColor="#3D9E5F"
+        android:textSize="12sp"
+        android:visibility="gone" />
+</LinearLayout>

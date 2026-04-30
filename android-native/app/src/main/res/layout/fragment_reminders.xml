@@ -1,0 +1,18 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rappels bienveillants" android:textSize="24sp" android:textStyle="bold"/>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Liés à ton ancre, jamais à une heure abstraite." android:layout_marginTop="6dp"/>
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ton" android:textStyle="bold" android:layout_marginTop="16dp"/>
+    <RadioGroup android:id="@+id/toneGroup" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <RadioButton android:id="@+id/toneSoft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Doux"/>
+        <RadioButton android:id="@+id/toneNeutral" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Neutre"/>
+        <RadioButton android:id="@+id/toneMotiv" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Motivant"/>
+    </RadioGroup>
+
+    <TextView android:id="@+id/reminderPreview" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:padding="12dp" android:background="#1A1A1A" android:textColor="#FFFFFF" android:text="Petit rappel doux 🌿"/>
+</LinearLayout>
